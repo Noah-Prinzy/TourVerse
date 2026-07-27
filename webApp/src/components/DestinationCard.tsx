@@ -1,0 +1,30 @@
+import type { Destination } from "../models/Destination";
+
+interface DestinationCardProps {
+  destination: Destination;
+}
+
+export function DestinationCard({ destination }: DestinationCardProps) {
+  return (
+    <article className="destination-card">
+      <img
+        className="destination-image"
+        src={destination.imageUrl}
+        alt={destination.name}
+      />
+
+      <div className="destination-content">
+        <div className="destination-meta">
+          <span>{destination.category}</span>
+          <span>★ {destination.rating.toFixed(1)}</span>
+        </div>
+
+        <h2>{destination.name}</h2>
+        <p className="location">{destination.location}</p>
+        <p>{destination.description}</p>
+
+        <button type="button">View destination</button>
+      </div>
+    </article>
+  );
+}

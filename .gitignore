@@ -1,0 +1,28 @@
+# General
+.idea/
+.vscode/
+*.iml
+.DS_Store
+.env
+
+# Kotlin and Gradle
+.gradle/
+build/
+**/build/
+local.properties
+
+# Android
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Node
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+backend/.env
+webApp/.env

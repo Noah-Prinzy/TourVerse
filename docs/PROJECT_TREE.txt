@@ -1,0 +1,116 @@
+TourVerse
+├── androidApp
+│   ├── app
+│   │   ├── src
+│   │   │   └── main
+│   │   │       ├── kotlin
+│   │   │       │   └── com
+│   │   │       │       └── tourverse
+│   │   │       │           ├── data
+│   │   │       │           │   ├── model
+│   │   │       │           │   │   └── Destination.kt
+│   │   │       │           │   ├── remote
+│   │   │       │           │   │   ├── ApiClient.kt
+│   │   │       │           │   │   └── TourismApi.kt
+│   │   │       │           │   └── repository
+│   │   │       │           │       └── DestinationRepository.kt
+│   │   │       │           ├── platform
+│   │   │       │           │   └── .gitkeep
+│   │   │       │           ├── ui
+│   │   │       │           │   ├── components
+│   │   │       │           │   │   └── .gitkeep
+│   │   │       │           │   ├── navigation
+│   │   │       │           │   │   └── .gitkeep
+│   │   │       │           │   ├── screens
+│   │   │       │           │   │   ├── HomeScreen.kt
+│   │   │       │           │   │   └── HomeViewModel.kt
+│   │   │       │           │   └── theme
+│   │   │       │           │       └── Theme.kt
+│   │   │       │           └── MainActivity.kt
+│   │   │       ├── res
+│   │   │       │   └── values
+│   │   │       │       ├── strings.xml
+│   │   │       │       └── styles.xml
+│   │   │       └── AndroidManifest.xml
+│   │   └── build.gradle.kts
+│   ├── build.gradle.kts
+│   ├── gradle.properties
+│   ├── README.md
+│   └── settings.gradle.kts
+├── backend
+│   ├── src
+│   │   ├── main
+│   │   │   ├── kotlin
+│   │   │   │   └── com
+│   │   │   │       └── tourverse
+│   │   │   │           ├── controllers
+│   │   │   │           │   └── .gitkeep
+│   │   │   │           ├── database
+│   │   │   │           │   ├── tables
+│   │   │   │           │   │   └── .gitkeep
+│   │   │   │           │   └── .gitkeep
+│   │   │   │           ├── dto
+│   │   │   │           │   └── ApiMessage.kt
+│   │   │   │           ├── models
+│   │   │   │           │   └── Destination.kt
+│   │   │   │           ├── plugins
+│   │   │   │           │   ├── HTTP.kt
+│   │   │   │           │   ├── Routing.kt
+│   │   │   │           │   ├── Serialization.kt
+│   │   │   │           │   └── StatusPages.kt
+│   │   │   │           ├── repositories
+│   │   │   │           │   ├── DestinationRepository.kt
+│   │   │   │           │   └── InMemoryDestinationRepository.kt
+│   │   │   │           ├── routes
+│   │   │   │           │   ├── DestinationRoutes.kt
+│   │   │   │           │   └── HealthRoutes.kt
+│   │   │   │           ├── security
+│   │   │   │           │   └── .gitkeep
+│   │   │   │           ├── services
+│   │   │   │           │   └── DestinationService.kt
+│   │   │   │           ├── utils
+│   │   │   │           │   └── .gitkeep
+│   │   │   │           └── Application.kt
+│   │   │   └── resources
+│   │   │       ├── application.conf
+│   │   │       └── logback.xml
+│   │   └── test
+│   │       └── kotlin
+│   │           └── com
+│   │               └── tourverse
+│   │                   └── ApplicationTest.kt
+│   ├── build.gradle.kts
+│   ├── README.md
+│   └── settings.gradle.kts
+├── docs
+│   ├── API_CONTRACT.md
+│   ├── ARCHITECTURE.md
+│   └── PROJECT_TREE.txt
+├── webApp
+│   ├── src
+│   │   ├── components
+│   │   │   └── DestinationCard.tsx
+│   │   ├── hooks
+│   │   │   └── .gitkeep
+│   │   ├── models
+│   │   │   └── Destination.ts
+│   │   ├── pages
+│   │   │   └── .gitkeep
+│   │   ├── services
+│   │   │   └── api.ts
+│   │   ├── styles
+│   │   │   └── index.css
+│   │   ├── utils
+│   │   │   └── .gitkeep
+│   │   ├── App.tsx
+│   │   └── main.tsx
+│   ├── .env.example
+│   ├── index.html
+│   ├── package.json
+│   ├── README.md
+│   ├── tsconfig.app.json
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   └── vite.config.ts
+├── .gitignore
+└── README.md
