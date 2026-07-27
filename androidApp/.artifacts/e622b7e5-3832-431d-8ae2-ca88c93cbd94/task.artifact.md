@@ -1,0 +1,3 @@
+- `[ ]` Update `app/build.gradle.kts` with JVM 21 targets
+- `[ ]` Verify build with `./gradlew assembleDebug`
+- `[ ]` Create walkthrough
