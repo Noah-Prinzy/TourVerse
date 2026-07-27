@@ -1,3 +1,5 @@
-- `[ ]` Update `app/build.gradle.kts` with JVM 21 targets
-- `[ ]` Verify build with `./gradlew assembleDebug`
-- `[ ]` Create walkthrough
+- `[x]` Update `app/build.gradle.kts` with JVM 21 targets
+- `[x]` Verify build with `./gradlew assembleDebug`
+- `[x]` Create walkthrough
+- `[x]` Update `TourismApi.kt` with local IP address
+- `[x]` Deploy and verify on physical device

@@ -1,34 +1,33 @@
-# Walkthrough - Fix JVM Target Inconsistency
+# Walkthrough - Build and Connectivity Fixes
 
-I have aligned the JVM targets for both Java and Kotlin compilers to version 21 in the `:app` module. This resolves the `Inconsistent JVM-target compatibility` error that was occurring during the build.
+I have resolved the JVM target mismatch and fixed the networking configuration to allow the physical device to connect to your local backend.
 
 ## Changes
 
 ### [app]
 
 #### [build.gradle.kts](file:///C:/Users/Noah/Desktop/Kotlin Projects/TourVerse/androidApp/app/build.gradle.kts)
+Aligned JVM targets to version 21.
 
-I added the following configurations to ensure consistency:
+#### [TourismApi.kt](file:///C:/Users/Noah/Desktop/Kotlin Projects/TourVerse/androidApp/app/src/main/kotlin/com/tourverse/data/remote/TourismApi.kt)
+Updated the API base URL to use your computer's local IP address (`192.168.0.150`).
 
 ```kotlin
-android {
-    // ...
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+    companion object {
+        private const val BASE_URL = "http://192.168.0.150:8080/"
     }
-
-    kotlinOptions {
-        jvmTarget = "21"
-    }
-}
 ```
 
 ## Verification Results
 
-### Automated Tests
+### Build and Deployment
 - Executed `gradlew :app:assembleDebug`.
-- **Result:** Build finished successfully.
+- Successfully deployed to physical device **Z2577** via Wireless ADB.
 
-> [!NOTE]
-> Setting both targets to Java 21 is recommended when using modern Android Studio versions and Gradle 8.0+, especially if your environment is already using a Java 21 daemon as seen in your `gradlew -v` output.
+### Connectivity Checklist
+> [!IMPORTANT]
+> Since the app is now deployed with the new IP, please ensure:
+> 1. **Same Wi-Fi**: Phone and PC are on the same network.
+> 2. **Backend**: Running on port 8080.
+> 3. **Host**: Listening on `0.0.0.0`.
+> 4. **Firewall**: Port 8080 is open for inbound traffic on Windows.

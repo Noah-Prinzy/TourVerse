@@ -1,17 +1,26 @@
-# Fix JVM Target Inconsistency
+# Fix Local API Connection for Physical Device
 
-The build is failing due to a mismatch between the Java compiler target (1.8) and the Kotlin compiler target (21). This implementation plan addresses the issue by explicitly setting both targets to Java 21 in the `:app` module.
+The app is currently using `10.0.2.2`, which is a special address that only works from an Android Emulator to reach the host computer. Physical devices cannot use this address and must use the computer's actual local network IP.
+
+## User Review Required
+
+> [!IMPORTANT]
+> To connect your phone to your local server:
+> 1. Your **phone and computer must be on the same Wi-Fi network**.
+> 2. Your backend server must be configured to listen on all interfaces (e.g., `0.0.0.0`) rather than just `localhost` (`127.0.0.1`).
+> 3. Your computer's firewall must allow incoming connections on port **8080**.
 
 ## Proposed Changes
 
 ### [app]
 
-#### [MODIFY] [build.gradle.kts](file:///C:/Users/Noah/Desktop/Kotlin Projects/TourVerse/androidApp/app/build.gradle.kts)
+#### [MODIFY] [TourismApi.kt](file:///C:/Users/Noah/Desktop/Kotlin Projects/TourVerse/androidApp/app/src/main/kotlin/com/tourverse/data/remote/TourismApi.kt)
 
-- Add `compileOptions` block to set `sourceCompatibility` and `targetCompatibility` to `JavaVersion.VERSION_21`.
-- Add `kotlinOptions` block (or use `compilerOptions` if using newer Kotlin Gradle Plugin features) to set `jvmTarget` to `"21"`.
+Change the `baseUrl` to use your computer's local IP address: `192.168.0.150`.
 
 ## Verification Plan
 
-### Automated Tests
-- Run `./gradlew assembleDebug` to ensure the build completes successfully without the JVM target compatibility error.
+### Manual Verification
+- Deploy the updated app to your phone.
+- Ensure the backend server is running on your computer at port 8080.
+- Verify that the destinations are successfully fetched without a timeout.

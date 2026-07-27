@@ -23,6 +23,11 @@ dependencies {
     implementation("io.ktor:ktor-server-status-pages-jvm:3.1.2")
     implementation("io.ktor:ktor-server-cors-jvm:3.1.2")
     implementation("ch.qos.logback:logback-classic:1.5.18")
+    implementation("org.postgresql:postgresql:42.7.11")
+    implementation("com.zaxxer:HikariCP:7.0.2")
+    implementation("org.flywaydb:flyway-core:12.11.0")
+    implementation("org.flywaydb:flyway-database-postgresql:12.11.0")
+    implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
 
     testImplementation(kotlin("test"))
     testImplementation("io.ktor:ktor-server-test-host-jvm:3.1.2")

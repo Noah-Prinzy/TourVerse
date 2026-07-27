@@ -11,7 +11,7 @@ class ApplicationTest {
     @Test
     fun healthEndpointReturnsOk() = testApplication {
         application {
-            module()
+            configureApplication()
         }
 
         val response = client.get("/api/health")

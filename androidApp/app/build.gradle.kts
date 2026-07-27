@@ -5,6 +5,19 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
+fun String.asBuildConfigString(): String =
+    "\"${replace("\\", "\\\\").replace("\"", "\\\"")}\""
+
+val physicalApiBaseUrl = providers
+    .gradleProperty("tourverse.physicalApiUrl")
+    .orElse(providers.environmentVariable("TOURVERSE_PHYSICAL_API_URL"))
+    .orElse("http://192.168.0.150:8080/")
+
+val productionApiBaseUrl = providers
+    .gradleProperty("tourverse.productionApiUrl")
+    .orElse(providers.environmentVariable("TOURVERSE_PRODUCTION_API_URL"))
+    .orElse("")
+
 android {
     namespace = "com.tourverse"
     compileSdk = 35
@@ -17,6 +30,52 @@ android {
         versionName = "1.0"
     }
 
+    flavorDimensions += "apiEnvironment"
+
+    productFlavors {
+        create("development") {
+            dimension = "apiEnvironment"
+            applicationIdSuffix = ".development"
+            versionNameSuffix = "-development"
+            buildConfigField(
+                "String",
+                "API_BASE_URL",
+                "http://127.0.0.1:8080/".asBuildConfigString()
+            )
+        }
+
+        create("emulator") {
+            dimension = "apiEnvironment"
+            applicationIdSuffix = ".emulator"
+            versionNameSuffix = "-emulator"
+            buildConfigField(
+                "String",
+                "API_BASE_URL",
+                "http://10.0.2.2:8080/".asBuildConfigString()
+            )
+        }
+
+        create("physical") {
+            dimension = "apiEnvironment"
+            applicationIdSuffix = ".physical"
+            versionNameSuffix = "-physical"
+            buildConfigField(
+                "String",
+                "API_BASE_URL",
+                physicalApiBaseUrl.get().asBuildConfigString()
+            )
+        }
+
+        create("production") {
+            dimension = "apiEnvironment"
+            buildConfigField(
+                "String",
+                "API_BASE_URL",
+                productionApiBaseUrl.get().asBuildConfigString()
+            )
+        }
+    }
+
     buildFeatures {
         compose = true
         buildConfig = true
@@ -26,6 +85,15 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    kotlinOptions {
+        jvmTarget = "21"
     }
 }
 

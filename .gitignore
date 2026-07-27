@@ -4,6 +4,8 @@
 *.iml
 .DS_Store
 .env
+.env.*
+!.env.example
 
 # Kotlin and Gradle
 .gradle/
