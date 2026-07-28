@@ -3,6 +3,9 @@ package com.tourverse.data.remote
 import com.tourverse.BuildConfig
 import com.tourverse.data.model.ApiMessage
 import com.tourverse.data.model.DestinationQuery
+import com.tourverse.data.model.Destination
+import com.tourverse.data.model.Category
+import com.tourverse.data.model.ReviewSummary
 import com.tourverse.data.model.PagedDestinationResponse
 import io.ktor.client.call.body
 import io.ktor.client.HttpClient
@@ -70,6 +73,30 @@ class TourismApi(
         } catch (_: IllegalArgumentException) {
             fallback
         }
+        throw DestinationApiException(message)
+    }
+
+    suspend fun getDestination(id: String): Destination =
+        getPublic("api/destinations/$id")
+
+    suspend fun getCategories(): List<Category> =
+        getPublic("api/categories")
+
+    suspend fun getReviews(destinationId: String): ReviewSummary =
+        getPublic("api/destinations/$destinationId/reviews")
+
+    private suspend inline fun <reified T> getPublic(path: String): T {
+        val response = try {
+            client.get("$baseUrl$path")
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (exception: Exception) {
+            throw DestinationApiException("Unable to connect to TourVerse. Check your connection and try again.", exception)
+        }
+        if (response.status.isSuccess()) return try { response.body() }
+        catch (exception: Exception) { throw DestinationApiException("TourVerse returned an invalid response.", exception) }
+        val fallback = "Request failed (HTTP ${response.status.value})."
+        val message = runCatching { ApiClient.json.decodeFromString<ApiMessage>(response.bodyAsText()).message }.getOrDefault(fallback)
         throw DestinationApiException(message)
     }
 }

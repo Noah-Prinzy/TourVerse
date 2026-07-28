@@ -1,4 +1,5 @@
 import type { Destination } from "../models/Destination";
+import { Link } from "react-router-dom";
 
 interface DestinationCardProps {
   destination: Destination;
@@ -38,7 +39,7 @@ export function DestinationCard({ destination }: DestinationCardProps) {
         <p className="location">{location}</p>
         <p>{destination.description}</p>
 
-        <button type="button">View destination</button>
+        <Link className="card-link" to={`/destinations/${destination.id}`}>View destination</Link>
       </div>
     </article>
   );

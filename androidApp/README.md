@@ -5,10 +5,10 @@ This is the authoritative guide to the Android client currently implemented in
 
 ## Current implementation
 
-The Android application is a small Jetpack Compose destination-listing client.
+The Android application is a routed Jetpack Compose client.
 It currently:
 
-- Starts from `MainActivity` and renders a single `HomeScreen`
+- Starts from `MainActivity` and renders a Navigation Compose application
 - Consumes the backend's paginated UUID destination response
 - Supports search, country/city/category filters, sorting, and pagination
 - Uses a ViewModel and `StateFlow` for loading, empty, success, and error states
@@ -19,10 +19,11 @@ It currently:
   user-facing message
 - Supports separate API URLs for local ADB, emulator, physical-device, and
   production builds
-
-Authentication, account management, category browsing, destination details,
-favorites, reviews, trips, services, bookings, notifications, navigation, local
-caching, and offline support are not implemented in this Android client.
+- Provides registration, login, refresh rotation, protected navigation,
+  profiles, logout, and account deletion
+- Encrypts the persisted refresh token with Android Keystore AES-GCM
+- Provides destination details, backend categories, favorites, review CRUD,
+  and private trip CRUD with destination add/remove
 
 ## Technology and requirements
 
@@ -213,11 +214,10 @@ active query.
 
 ## Known limitations and next work
 
-- Only destination listing is implemented.
-- No dependency injection; default constructors create concrete API layers.
-- No authentication token storage or bearer interceptor.
-- No screen navigation or destination details.
+- Uses a manual application composition root rather than a DI framework.
 - No accessibility-specific semantics beyond basic content descriptions.
 - No local database, cache, or offline mode.
 - No instrumentation/UI tests; current tests focus on models and API behavior.
 - API base URLs are build-time values rather than runtime settings.
+- Services, bookings, notifications, and full role-specific portals are not yet
+  exposed.

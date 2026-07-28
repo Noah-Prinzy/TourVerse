@@ -3,17 +3,17 @@
 TourVerse is a tourism-platform repository with a Kotlin/Ktor/PostgreSQL
 backend, a Jetpack Compose Android client, and a React/TypeScript web client.
 
-The backend currently contains the broad platform feature set. The Android and
-web clients are early destination-listing interfaces and do not yet expose most
-backend modules.
+The backend contains the broad platform feature set. The Android and web
+clients now provide navigation, authentication, profiles, destination details,
+backend categories, favorites, reviews, and private trip management.
 
 ## Repository status
 
 | Area | Implemented state |
 | --- | --- |
 | Backend | Destinations, authentication, profiles, categories, reviews, favorites, trips, tourism services, bookings, notifications, administration, migrations, API hardening, tests, and deployment files |
-| Android | One Compose destination browser with paginated search/filter/sort state and four configurable API environments |
-| Web | One responsive React destination browser with paginated search/filter/sort state |
+| Android | Compose navigation, secure sessions, profiles, destination catalogue/community features, trips, and four configurable API environments |
+| Web | Routed React client with sessions, profiles, destination catalogue/community features, and trips |
 | Documentation | Architecture, API contract, project tree, and one authoritative README inside each application folder |
 
 Both clients now model the backend's UUID-based paginated destination contract,
@@ -166,8 +166,9 @@ Set-Location webApp
 npm.cmd run build
 ```
 
-The Android and web projects currently have no automated test suites. The web
-project also has no lint script.
+The Android project has Kotlin/JUnit and Ktor MockEngine tests. The web project
+has Vitest API and session tests. The web project does not yet have a lint
+script or browser end-to-end suite.
 
 ## Security and configuration
 
@@ -187,5 +188,6 @@ files or process real payments. Email delivery, push notifications, maps
 provider integration, production hosting, monitoring, and backup operations
 require external services and operational configuration.
 
-The next frontend priorities are live browser/device validation, authentication,
-and incremental UI coverage for the backend's remaining platform modules.
+The next frontend priorities are live browser/device validation and incremental
+UI coverage for tourism services, bookings, notifications, and role-specific
+administration/business-owner workflows.

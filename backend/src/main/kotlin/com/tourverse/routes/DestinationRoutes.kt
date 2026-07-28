@@ -6,6 +6,7 @@ import com.tourverse.models.DestinationQuery
 import com.tourverse.models.DestinationSortField
 import com.tourverse.models.SortDirection
 import com.tourverse.models.UpdateDestinationRequest
+import com.tourverse.security.authenticatedUser
 import com.tourverse.services.DestinationService
 import com.tourverse.utils.ValidationException
 import io.ktor.http.HttpStatusCode
@@ -51,12 +52,14 @@ fun Route.destinationRoutes(service: DestinationService) {
         }
 
         post {
+            call.authenticatedUser("ADMIN")
             val request = call.receive<CreateDestinationRequest>()
             val createdDestination = service.createDestination(request)
             call.respond(HttpStatusCode.Created, createdDestination)
         }
 
         put("/{id}") {
+            call.authenticatedUser("ADMIN")
             val id = parseUuid(call.parameters["id"])
             val request = call.receive<UpdateDestinationRequest>()
             val updatedDestination = service.updateDestination(id, request)
@@ -73,6 +76,7 @@ fun Route.destinationRoutes(service: DestinationService) {
         }
 
         delete("/{id}") {
+            call.authenticatedUser("ADMIN")
             val id = parseUuid(call.parameters["id"])
             val deleted = service.deleteDestination(id)
 

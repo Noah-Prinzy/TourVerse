@@ -6,6 +6,8 @@ import type {
   SortDirection,
 } from "./models/Destination";
 import { getDestinations } from "./services/api";
+import { getCategories } from "./services/communityApi";
+import type { Category } from "./models/Community";
 
 const PAGE_SIZES = [10, 20, 50];
 
@@ -27,6 +29,11 @@ function App() {
   const [sortDirection, setSortDirection] =
     useState<SortDirection>("desc");
   const [retryVersion, setRetryVersion] = useState(0);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    getCategories().then(setCategories).catch(() => setCategories([]));
+  }, []);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -103,18 +110,7 @@ function App() {
 
   return (
     <>
-      <header className="site-header">
-        <a href="/" className="brand">
-          TourVerse
-        </a>
-        <nav aria-label="Primary navigation">
-          <a href="#destinations">Destinations</a>
-          <a href="#trips">My trips</a>
-          <a href="#about">About</a>
-        </nav>
-      </header>
-
-      <main>
+      <div>
         <section className="hero">
           <div className="hero-content">
             <p className="eyebrow">Your next journey begins here</p>
@@ -170,13 +166,15 @@ function App() {
             </label>
             <label>
               <span>Category</span>
-              <input
+              <select
                 value={category}
                 onChange={(event) =>
                   updateFilter(setCategory, event.target.value)
                 }
-                placeholder="Any category"
-              />
+              >
+                <option value="">Any category</option>
+                {categories.map((item) => <option key={item.id} value={item.name}>{item.name}</option>)}
+              </select>
             </label>
             <label>
               <span>Sort by</span>
@@ -283,11 +281,11 @@ function App() {
             </nav>
           )}
         </section>
-      </main>
+      </div>
 
-      <footer id="about">
+      {false && <footer id="about">
         <p>TourVerse · Kotlin, Ktor, React and TypeScript</p>
-      </footer>
+      </footer>}
     </>
   );
 }

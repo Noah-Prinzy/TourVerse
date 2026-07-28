@@ -35,7 +35,10 @@ import coil3.compose.rememberAsyncImagePainter
 import com.tourverse.data.model.Destination
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
+fun HomeScreen(
+    viewModel: HomeViewModel = viewModel(),
+    onDestinationClick: (String) -> Unit = {}
+) {
     val state by viewModel.uiState.collectAsState()
 
     Scaffold { innerPadding ->
@@ -55,12 +58,13 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                 onSearchChange = viewModel::updateSearch,
                 onCountryChange = viewModel::updateCountry,
                 onCityChange = viewModel::updateCity,
-                onCategoryChange = viewModel::updateCategory,
+                onCategoryClick = viewModel::cycleCategory,
                 onSortFieldClick = viewModel::cycleSortField,
                 onSortDirectionClick = viewModel::toggleSortDirection,
                 onPageSizeClick = viewModel::cyclePageSize,
                 onPrevious = viewModel::previousPage,
                 onNext = viewModel::nextPage,
+                onDestinationClick = onDestinationClick,
                 modifier = Modifier.padding(innerPadding)
             )
         }
@@ -73,12 +77,13 @@ private fun DestinationList(
     onSearchChange: (String) -> Unit,
     onCountryChange: (String) -> Unit,
     onCityChange: (String) -> Unit,
-    onCategoryChange: (String) -> Unit,
+    onCategoryClick: () -> Unit,
     onSortFieldClick: () -> Unit,
     onSortDirectionClick: () -> Unit,
     onPageSizeClick: () -> Unit,
     onPrevious: () -> Unit,
     onNext: () -> Unit,
+    onDestinationClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -118,13 +123,9 @@ private fun DestinationList(
                     label = { Text("City") },
                     singleLine = true
                 )
-                OutlinedTextField(
-                    value = state.category,
-                    onValueChange = onCategoryChange,
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Category") },
-                    singleLine = true
-                )
+                TextButton(onClick = onCategoryClick) {
+                    Text("Category: ${state.category.ifBlank { "Any" }}")
+                }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -158,7 +159,7 @@ private fun DestinationList(
             }
         } else {
             items(state.destinations, key = { it.id }) { destination ->
-                DestinationCard(destination)
+                DestinationCard(destination, onDestinationClick)
             }
         }
 
@@ -187,8 +188,11 @@ private fun DestinationList(
 }
 
 @Composable
-private fun DestinationCard(destination: Destination) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+private fun DestinationCard(destination: Destination, onDestinationClick: (String) -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = { onDestinationClick(destination.id) }
+    ) {
         Column {
             val imageUrl = destination.coverImageUrl?.trim()?.takeIf(String::isNotEmpty)
             if (imageUrl == null) {

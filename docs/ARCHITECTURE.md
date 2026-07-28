@@ -32,8 +32,9 @@ repository as of July 28, 2026.
 +------------------------------------------------------------------+
 ```
 
-The backend is the system of record. Both clients are currently read-oriented
-destination prototypes, while the backend implements the larger platform.
+The backend is the system of record. Both clients now cover authenticated
+profiles, destination discovery/details, categories, favorites, reviews, and
+private trips; the backend still implements additional platform modules.
 
 ## Backend startup and request flow
 
@@ -141,8 +142,7 @@ Authorization is enforced in route helpers and service ownership checks:
   guides and managed by owners or administrators.
 - Booking cancellation is restricted to the booking owner.
 
-Destination write routes currently have no bearer or role check and should be
-treated as an unfinished authorization boundary.
+Destination write routes require `ADMIN`; destination reads remain public.
 
 ## Android architecture
 
@@ -158,8 +158,9 @@ DestinationRepository
 TourismApi -> shared Ktor HttpClient -> backend
 ```
 
-The Android client has one screen and no navigation or persistence layer.
-Build flavors inject the API URL into `BuildConfig`.
+The Android client uses Navigation Compose, a shared session manager,
+Keystore-encrypted refresh-token persistence, feature ViewModels/repositories,
+and build flavors that inject the API URL into `BuildConfig`.
 
 ## Web architecture
 
@@ -173,9 +174,10 @@ React App
    `--> DestinationCard grid
 ```
 
-The web application is a single Vite entry point with no router, global state,
-cache, or authentication layer. Focused Vitest tests cover destination query
-and API error behavior.
+The web application uses React Router, a shared application shell, centralized
+session/authenticated-fetch handling, protected routes, and feature pages.
+Focused Vitest tests cover destination queries, API errors, bearer attachment,
+single-flight refresh, and failed-session cleanup.
 
 ## Destination integration contract
 

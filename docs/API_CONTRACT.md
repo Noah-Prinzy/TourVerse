@@ -110,12 +110,12 @@ updates accept nullable `firstName`, `lastName`, `bio`, `nationality`,
 | --- | --- | --- | --- |
 | GET | `/api/destinations` | Public | `PagedDestinationResponse` |
 | GET | `/api/destinations/{id}` | Public | `Destination` |
-| POST | `/api/destinations` | Public | `CreateDestinationRequest` -> 201 |
-| PUT | `/api/destinations/{id}` | Public | Full `UpdateDestinationRequest` |
-| DELETE | `/api/destinations/{id}` | Public | `ApiMessage` |
+| POST | `/api/destinations` | ADMIN | `CreateDestinationRequest` -> 201 |
+| PUT | `/api/destinations/{id}` | ADMIN | Full `UpdateDestinationRequest` |
+| DELETE | `/api/destinations/{id}` | ADMIN | `ApiMessage` |
 
-Destination writes are public in the current route implementation. This should
-be reviewed before production.
+Missing credentials on destination writes return 401; authenticated non-admin
+roles receive 403. Errors retain the standard `ApiMessage` response.
 
 List query parameters:
 

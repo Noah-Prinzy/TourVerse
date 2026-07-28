@@ -25,10 +25,8 @@ The backend provides a JSON REST API backed by PostgreSQL:
   request logging, forwarded-header support, and in-memory rate limiting
 - Flyway migrations, Docker packaging, an OpenAPI resource, and automated tests
 
-Destination create, update, and delete routes are currently public in the route
-implementation. This differs from the OpenAPI document, which advertises an
-unauthorized response for creation. Add an explicit authorization policy before
-using destination writes in production.
+Destination reads are public. Destination create, update, and delete routes
+require a valid bearer access token whose role is `ADMIN`.
 
 ## Technology
 
@@ -153,6 +151,25 @@ Current migrations:
 | V12 | Administration/query indexes |
 
 ## Authentication and authorization
+
+Destination write authorization is enforced in the Ktor route layer with the
+same `authenticatedUser("ADMIN")` mechanism used by other administrator
+operations.
+
+### Development catalogue
+
+`scripts/seed-development-data.sql` explicitly adds four category records and
+36 conservative Uganda development destinations. It is not a Flyway migration,
+is never run automatically, and must never be run against production.
+
+Run it manually with a PostgreSQL client connected to a disposable development
+database. It is idempotent: category slugs use `ON CONFLICT`, while destinations
+are inserted only when the same case-insensitive name and country are absent.
+
+If the password formerly present in `.env.example` was ever used, rotate the
+PostgreSQL role password manually. If it was pushed remotely, consider it
+compromised. Production credentials belong in the hosting platform's secret
+manager.
 
 Protected requests use:
 

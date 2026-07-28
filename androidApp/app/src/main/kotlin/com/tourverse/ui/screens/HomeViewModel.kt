@@ -7,6 +7,7 @@ import com.tourverse.data.model.DestinationQuery
 import com.tourverse.data.model.DestinationSortField
 import com.tourverse.data.model.SortDirection
 import com.tourverse.data.repository.DestinationRepository
+import com.tourverse.data.remote.TourismApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -25,7 +26,8 @@ data class HomeUiState(
     val sortDirection: SortDirection = SortDirection.DESC,
     val isLoading: Boolean = true,
     val isEmpty: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val categories: List<String> = emptyList()
 ) {
     val canGoPrevious: Boolean get() = !isLoading && currentPage > 1
     val canGoNext: Boolean get() = !isLoading && currentPage < totalPages
@@ -43,7 +45,8 @@ data class HomeUiState(
 }
 
 class HomeViewModel(
-    private val repository: DestinationRepository = DestinationRepository()
+    private val repository: DestinationRepository = DestinationRepository(),
+    private val tourismApi: TourismApi = TourismApi()
 ) : ViewModel() {
 
     private val _uiState = kotlinx.coroutines.flow.MutableStateFlow(HomeUiState())
@@ -55,6 +58,10 @@ class HomeViewModel(
 
     init {
         loadDestinations()
+        viewModelScope.launch {
+            runCatching { tourismApi.getCategories().map { it.name } }
+                .onSuccess { values -> _uiState.value = _uiState.value.copy(categories = values) }
+        }
     }
 
     fun retry() = loadDestinations()
@@ -81,6 +88,12 @@ class HomeViewModel(
     fun updateCategory(value: String) {
         _uiState.value = _uiState.value.copy(category = value, currentPage = 1)
         loadDestinations()
+    }
+
+    fun cycleCategory() {
+        val choices = listOf("") + _uiState.value.categories
+        val current = choices.indexOf(_uiState.value.category).coerceAtLeast(0)
+        updateCategory(choices[(current + 1) % choices.size])
     }
 
     fun cycleSortField() {

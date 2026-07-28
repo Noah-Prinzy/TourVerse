@@ -279,6 +279,77 @@ footer {
   color: #dce7e1;
 }
 
+.site-header nav a.active {
+  color: #1c6b4a;
+  text-decoration: underline;
+  text-underline-offset: 0.35rem;
+}
+
+.nav-button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+.form-page,
+.simple-page {
+  min-height: 70vh;
+  padding: 4rem 1.25rem;
+  background: #f5f7f3;
+}
+
+.simple-page { text-align: center; }
+
+.form-card {
+  display: grid;
+  gap: 1rem;
+  width: min(100%, 36rem);
+  margin: 0 auto;
+  padding: 2rem;
+  border-radius: 1rem;
+  background: white;
+  box-shadow: 0 0.75rem 2rem rgb(20 55 40 / 10%);
+}
+
+.form-card label { display: grid; gap: 0.4rem; font-weight: 600; }
+.form-card input,
+.form-card textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #b9c6bd;
+  border-radius: 0.5rem;
+  font: inherit;
+}
+.form-card textarea { min-height: 7rem; resize: vertical; }
+.form-card button { padding: 0.8rem 1rem; }
+.form-card .checkbox-row { display: flex; align-items: center; }
+.form-card .checkbox-row input { width: auto; }
+.field-help { margin-top: -0.6rem; color: #59645d; font-size: 0.9rem; }
+.secondary-button { background: #e7ede9; color: #173b2c; }
+.danger-button { background: #a4262c; color: white; }
+.card-link {
+  display: inline-block;
+  padding: 0.7rem 1rem;
+  border-radius: 0.5rem;
+  background: #1c6b4a;
+  color: white;
+  text-decoration: none;
+}
+.detail-page,
+.trips-page { width: min(100% - 2rem, 70rem); margin: 0 auto; padding: 3rem 0; }
+.detail-image { width: 100%; height: min(55vw, 28rem); margin-top: 1.5rem; object-fit: cover; border-radius: 1rem; }
+.reviews-section { margin-top: 3rem; }
+.review-form { display: grid; gap: 1rem; max-width: 36rem; }
+.review-form label { display: grid; gap: 0.4rem; }
+.review-form textarea { min-height: 7rem; }
+.review-card,
+.trip-card { margin: 1rem 0; padding: 1rem; border: 1px solid #d9e1dc; border-radius: 0.75rem; background: white; }
+.trip-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem; margin-top: 2rem; }
+.compact-form { margin: 2rem 0; }
+.itinerary li { margin-bottom: 1rem; padding: 1rem; background: white; border-radius: 0.75rem; }
+
 @media (max-width: 900px) {
   .destination-controls {
     grid-template-columns: repeat(2, minmax(0, 1fr));

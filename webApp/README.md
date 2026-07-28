@@ -5,7 +5,7 @@ This is the authoritative guide to the React client currently implemented in
 
 ## Current implementation
 
-The web application is a responsive destination landing page. It currently:
+The web application is a routed responsive client. It currently:
 
 - Renders a header, hero section, destination grid, and footer
 - Consumes the backend's paginated UUID destination response
@@ -16,11 +16,11 @@ The web application is a responsive destination landing page. It currently:
 - Cancels stale requests through `AbortController`
 - Uses responsive three-, two-, and one-column layouts
 - Allows the backend base URL to be configured with `VITE_API_BASE_URL`
-
-The navigation links for `My trips` and `About` and each `View destination`
-button remain presentational. Routing, trip management, destination details,
-authentication, categories, favorites, reviews, services, bookings,
-notifications, and administration are not implemented in the web client.
+- Provides registration, login, refresh rotation, logout, protected routes,
+  profile editing, and account deletion
+- Provides destination details, backend categories, favorites, review CRUD, and
+  private trip CRUD with destination add/remove
+- Uses React Router and a shared role-aware application shell
 
 ## Technology
 
@@ -171,10 +171,11 @@ location from nullable city and country and no longer invent a rating.
 
 ## Known limitations and next work
 
-- The destination button has no action.
-- No application router or real pages exist.
-- The `My trips` link targets an element that does not exist.
 - No server-state cache beyond current React component state.
-- No authentication or role-aware UI.
 - No component/browser tests or lint command.
 - Remote image failures do not yet switch to the local null-image fallback.
+- Refresh-token persistence is centralized but JavaScript-readable because the
+  backend currently returns tokens in JSON; a future HttpOnly-cookie design
+  would reduce XSS exposure.
+- Services, bookings, notifications, and full role-specific portals are not yet
+  exposed.
