@@ -1,116 +1,131 @@
-TourVerse
-├── androidApp
-│   ├── app
-│   │   ├── src
-│   │   │   └── main
-│   │   │       ├── kotlin
-│   │   │       │   └── com
-│   │   │       │       └── tourverse
-│   │   │       │           ├── data
-│   │   │       │           │   ├── model
-│   │   │       │           │   │   └── Destination.kt
-│   │   │       │           │   ├── remote
-│   │   │       │           │   │   ├── ApiClient.kt
-│   │   │       │           │   │   └── TourismApi.kt
-│   │   │       │           │   └── repository
-│   │   │       │           │       └── DestinationRepository.kt
-│   │   │       │           ├── platform
-│   │   │       │           │   └── .gitkeep
-│   │   │       │           ├── ui
-│   │   │       │           │   ├── components
-│   │   │       │           │   │   └── .gitkeep
-│   │   │       │           │   ├── navigation
-│   │   │       │           │   │   └── .gitkeep
-│   │   │       │           │   ├── screens
-│   │   │       │           │   │   ├── HomeScreen.kt
-│   │   │       │           │   │   └── HomeViewModel.kt
-│   │   │       │           │   └── theme
-│   │   │       │           │       └── Theme.kt
-│   │   │       │           └── MainActivity.kt
-│   │   │       ├── res
-│   │   │       │   └── values
-│   │   │       │       ├── strings.xml
-│   │   │       │       └── styles.xml
-│   │   │       └── AndroidManifest.xml
-│   │   └── build.gradle.kts
-│   ├── build.gradle.kts
-│   ├── gradle.properties
-│   ├── README.md
-│   └── settings.gradle.kts
-├── backend
-│   ├── src
-│   │   ├── main
-│   │   │   ├── kotlin
-│   │   │   │   └── com
-│   │   │   │       └── tourverse
-│   │   │   │           ├── controllers
-│   │   │   │           │   └── .gitkeep
-│   │   │   │           ├── database
-│   │   │   │           │   ├── tables
-│   │   │   │           │   │   └── .gitkeep
-│   │   │   │           │   └── .gitkeep
-│   │   │   │           ├── dto
-│   │   │   │           │   └── ApiMessage.kt
-│   │   │   │           ├── models
-│   │   │   │           │   └── Destination.kt
-│   │   │   │           ├── plugins
-│   │   │   │           │   ├── HTTP.kt
-│   │   │   │           │   ├── Routing.kt
-│   │   │   │           │   ├── Serialization.kt
-│   │   │   │           │   └── StatusPages.kt
-│   │   │   │           ├── repositories
-│   │   │   │           │   ├── DestinationRepository.kt
-│   │   │   │           │   └── InMemoryDestinationRepository.kt
-│   │   │   │           ├── routes
-│   │   │   │           │   ├── DestinationRoutes.kt
-│   │   │   │           │   └── HealthRoutes.kt
-│   │   │   │           ├── security
-│   │   │   │           │   └── .gitkeep
-│   │   │   │           ├── services
-│   │   │   │           │   └── DestinationService.kt
-│   │   │   │           ├── utils
-│   │   │   │           │   └── .gitkeep
-│   │   │   │           └── Application.kt
-│   │   │   └── resources
-│   │   │       ├── application.conf
-│   │   │       └── logback.xml
-│   │   └── test
-│   │       └── kotlin
-│   │           └── com
-│   │               └── tourverse
-│   │                   └── ApplicationTest.kt
-│   ├── build.gradle.kts
-│   ├── README.md
-│   └── settings.gradle.kts
-├── docs
-│   ├── API_CONTRACT.md
-│   ├── ARCHITECTURE.md
-│   └── PROJECT_TREE.txt
-├── webApp
-│   ├── src
-│   │   ├── components
-│   │   │   └── DestinationCard.tsx
-│   │   ├── hooks
-│   │   │   └── .gitkeep
-│   │   ├── models
-│   │   │   └── Destination.ts
-│   │   ├── pages
-│   │   │   └── .gitkeep
-│   │   ├── services
-│   │   │   └── api.ts
-│   │   ├── styles
-│   │   │   └── index.css
-│   │   ├── utils
-│   │   │   └── .gitkeep
-│   │   ├── App.tsx
-│   │   └── main.tsx
-│   ├── .env.example
-│   ├── index.html
-│   ├── package.json
-│   ├── README.md
-│   ├── tsconfig.app.json
-│   ├── tsconfig.json
-│   ├── tsconfig.node.json
-│   └── vite.config.ts
-├── .gitignore
-└── README.md
+﻿TourVerse source tree (generated 2026-07-28)
+Generated files, dependency caches, local secrets, and binaries are excluded.
+
+androidApp\app\build.gradle.kts
+androidApp\app\src\main\AndroidManifest.xml
+androidApp\app\src\main\kotlin\com\tourverse\data\model\Destination.kt
+androidApp\app\src\main\kotlin\com\tourverse\data\remote\ApiClient.kt
+androidApp\app\src\main\kotlin\com\tourverse\data\remote\TourismApi.kt
+androidApp\app\src\main\kotlin\com\tourverse\data\repository\DestinationRepository.kt
+androidApp\app\src\main\kotlin\com\tourverse\MainActivity.kt
+androidApp\app\src\main\kotlin\com\tourverse\ui\screens\HomeScreen.kt
+androidApp\app\src\main\kotlin\com\tourverse\ui\screens\HomeViewModel.kt
+androidApp\app\src\main\kotlin\com\tourverse\ui\theme\Theme.kt
+androidApp\app\src\main\res\values\strings.xml
+androidApp\app\src\main\res\values\styles.xml
+androidApp\build.gradle.kts
+androidApp\gradle.properties
+androidApp\gradle\gradle-daemon-jvm.properties
+androidApp\gradle\wrapper\gradle-wrapper.properties
+androidApp\gradlew
+androidApp\gradlew.bat
+androidApp\README.md
+androidApp\settings.gradle.kts
+backend\.env.example
+backend\build.gradle.kts
+backend\docker-compose.yml
+backend\Dockerfile
+backend\gradle\wrapper\gradle-wrapper.properties
+backend\gradlew
+backend\gradlew.bat
+backend\README.md
+backend\settings.gradle.kts
+backend\src\main\kotlin\com\tourverse\Application.kt
+backend\src\main\kotlin\com\tourverse\database\DatabaseFactory.kt
+backend\src\main\kotlin\com\tourverse\database\tables\CategoriesTable.kt
+backend\src\main\kotlin\com\tourverse\database\tables\CommunityTables.kt
+backend\src\main\kotlin\com\tourverse\database\tables\DestinationsTable.kt
+backend\src\main\kotlin\com\tourverse\database\tables\PlatformTables.kt
+backend\src\main\kotlin\com\tourverse\database\tables\UsersTable.kt
+backend\src\main\kotlin\com\tourverse\dto\ApiMessage.kt
+backend\src\main\kotlin\com\tourverse\dto\PagedDestinationResponse.kt
+backend\src\main\kotlin\com\tourverse\exceptions\ApiExceptions.kt
+backend\src\main\kotlin\com\tourverse\models\AuthModels.kt
+backend\src\main\kotlin\com\tourverse\models\CategoryModels.kt
+backend\src\main\kotlin\com\tourverse\models\CommunityModels.kt
+backend\src\main\kotlin\com\tourverse\models\CreateDestinationRequest.kt
+backend\src\main\kotlin\com\tourverse\models\Destination.kt
+backend\src\main\kotlin\com\tourverse\models\DestinationQuery.kt
+backend\src\main\kotlin\com\tourverse\models\PlatformModels.kt
+backend\src\main\kotlin\com\tourverse\models\ProfileModels.kt
+backend\src\main\kotlin\com\tourverse\models\UpdateDestinationRequest.kt
+backend\src\main\kotlin\com\tourverse\plugins\HTTP.kt
+backend\src\main\kotlin\com\tourverse\plugins\Observability.kt
+backend\src\main\kotlin\com\tourverse\plugins\Routing.kt
+backend\src\main\kotlin\com\tourverse\plugins\Security.kt
+backend\src\main\kotlin\com\tourverse\plugins\Serialization.kt
+backend\src\main\kotlin\com\tourverse\plugins\StatusPages.kt
+backend\src\main\kotlin\com\tourverse\repositories\CategoryRepository.kt
+backend\src\main\kotlin\com\tourverse\repositories\DestinationRepository.kt
+backend\src\main\kotlin\com\tourverse\repositories\PostgresCategoryRepository.kt
+backend\src\main\kotlin\com\tourverse\repositories\PostgresDestinationRepository.kt
+backend\src\main\kotlin\com\tourverse\routes\AuthRoutes.kt
+backend\src\main\kotlin\com\tourverse\routes\CategoryRoutes.kt
+backend\src\main\kotlin\com\tourverse\routes\CommunityRoutes.kt
+backend\src\main\kotlin\com\tourverse\routes\DestinationRoutes.kt
+backend\src\main\kotlin\com\tourverse\routes\DocumentationRoutes.kt
+backend\src\main\kotlin\com\tourverse\routes\HealthRoutes.kt
+backend\src\main\kotlin\com\tourverse\routes\PlatformRoutes.kt
+backend\src\main\kotlin\com\tourverse\routes\UserProfileRoutes.kt
+backend\src\main\kotlin\com\tourverse\security\Auth.kt
+backend\src\main\kotlin\com\tourverse\security\PasswordHasher.kt
+backend\src\main\kotlin\com\tourverse\security\TokenService.kt
+backend\src\main\kotlin\com\tourverse\services\AuthService.kt
+backend\src\main\kotlin\com\tourverse\services\AuthValidator.kt
+backend\src\main\kotlin\com\tourverse\services\CategoryService.kt
+backend\src\main\kotlin\com\tourverse\services\CategoryValidator.kt
+backend\src\main\kotlin\com\tourverse\services\CommunityService.kt
+backend\src\main\kotlin\com\tourverse\services\DestinationService.kt
+backend\src\main\kotlin\com\tourverse\services\DestinationValidator.kt
+backend\src\main\kotlin\com\tourverse\services\PlatformService.kt
+backend\src\main\kotlin\com\tourverse\services\ProfileValidator.kt
+backend\src\main\kotlin\com\tourverse\services\UserProfileService.kt
+backend\src\main\kotlin\com\tourverse\utils\ApiExceptions.kt
+backend\src\main\kotlin\com\tourverse\utils\AppEnvironment.kt
+backend\src\main\kotlin\com\tourverse\utils\Serializers.kt
+backend\src\main\resources\application.conf
+backend\src\main\resources\db\migration\V1__initial_schema.sql
+backend\src\main\resources\db\migration\V10__create_bookings.sql
+backend\src\main\resources\db\migration\V11__create_notifications.sql
+backend\src\main\resources\db\migration\V12__administration_indexes.sql
+backend\src\main\resources\db\migration\V2__create_destinations_table.sql
+backend\src\main\resources\db\migration\V3__create_users_and_refresh_tokens.sql
+backend\src\main\resources\db\migration\V4__expand_user_profiles.sql
+backend\src\main\resources\db\migration\V5__create_categories.sql
+backend\src\main\resources\db\migration\V6__create_reviews.sql
+backend\src\main\resources\db\migration\V7__create_favorites.sql
+backend\src\main\resources\db\migration\V8__create_trips.sql
+backend\src\main\resources\db\migration\V9__create_tourism_services.sql
+backend\src\main\resources\logback.xml
+backend\src\main\resources\openapi\tourverse-openapi.yaml
+backend\src\test\kotlin\com\tourverse\ApplicationTest.kt
+backend\src\test\kotlin\com\tourverse\AuthValidatorTest.kt
+backend\src\test\kotlin\com\tourverse\CategoryValidatorTest.kt
+backend\src\test\kotlin\com\tourverse\DestinationQueryTest.kt
+backend\src\test\kotlin\com\tourverse\DestinationValidatorTest.kt
+backend\src\test\kotlin\com\tourverse\DocumentationRoutesTest.kt
+backend\src\test\kotlin\com\tourverse\ProfileValidatorTest.kt
+backend\src\test\kotlin\com\tourverse\security\PasswordHasherTest.kt
+backend\src\test\kotlin\com\tourverse\security\TokenExpiryTest.kt
+backend\src\test\kotlin\com\tourverse\security\TokenServiceTest.kt
+backend\src\test\kotlin\com\tourverse\services\PlatformValidationTest.kt
+docs\API_CONTRACT.md
+docs\ARCHITECTURE.md
+docs\PROJECT_TREE.txt
+README.md
+webApp\.env.example
+webApp\index.html
+webApp\package.json
+webApp\package-lock.json
+webApp\README.md
+webApp\src\App.tsx
+webApp\src\components\DestinationCard.tsx
+webApp\src\main.tsx
+webApp\src\models\Destination.ts
+webApp\src\services\api.ts
+webApp\src\styles\index.css
+webApp\src\vite-env.d.ts
+webApp\tsconfig.app.json
+webApp\tsconfig.json
+webApp\tsconfig.node.json
+webApp\vite.config.ts

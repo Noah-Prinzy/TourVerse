@@ -1,0 +1,10 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/categories"
+method: GET
+body:
+  type: text
+  content: ""
+settings: {}
+examples: ./.resources/List active categories.resources/examples
+order: 1000

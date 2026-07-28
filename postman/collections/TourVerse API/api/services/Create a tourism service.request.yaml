@@ -1,0 +1,10 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/services"
+method: POST
+body:
+  type: text
+  content: ""
+settings: {}
+examples: ./.resources/Create a tourism service.resources/examples
+order: 2000

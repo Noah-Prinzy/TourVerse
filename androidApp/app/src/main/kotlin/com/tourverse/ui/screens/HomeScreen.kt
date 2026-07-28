@@ -18,8 +18,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -33,25 +35,32 @@ import coil3.compose.rememberAsyncImagePainter
 import com.tourverse.data.model.Destination
 
 @Composable
-fun HomeScreen(
-    viewModel: HomeViewModel = viewModel()
-) {
+fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
     val state by viewModel.uiState.collectAsState()
 
     Scaffold { innerPadding ->
         when {
-            state.isLoading -> LoadingContent(
+            state.isLoading && state.destinations.isEmpty() -> LoadingContent(
                 modifier = Modifier.padding(innerPadding)
             )
 
             state.errorMessage != null -> ErrorContent(
                 message = state.errorMessage.orEmpty(),
-                onRetry = viewModel::loadDestinations,
+                onRetry = viewModel::retry,
                 modifier = Modifier.padding(innerPadding)
             )
 
             else -> DestinationList(
-                destinations = state.destinations,
+                state = state,
+                onSearchChange = viewModel::updateSearch,
+                onCountryChange = viewModel::updateCountry,
+                onCityChange = viewModel::updateCity,
+                onCategoryChange = viewModel::updateCategory,
+                onSortFieldClick = viewModel::cycleSortField,
+                onSortDirectionClick = viewModel::toggleSortDirection,
+                onPageSizeClick = viewModel::cyclePageSize,
+                onPrevious = viewModel::previousPage,
+                onNext = viewModel::nextPage,
                 modifier = Modifier.padding(innerPadding)
             )
         }
@@ -60,7 +69,16 @@ fun HomeScreen(
 
 @Composable
 private fun DestinationList(
-    destinations: List<Destination>,
+    state: HomeUiState,
+    onSearchChange: (String) -> Unit,
+    onCountryChange: (String) -> Unit,
+    onCityChange: (String) -> Unit,
+    onCategoryChange: (String) -> Unit,
+    onSortFieldClick: () -> Unit,
+    onSortDirectionClick: () -> Unit,
+    onPageSizeClick: () -> Unit,
+    onPrevious: () -> Unit,
+    onNext: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -69,24 +87,101 @@ private fun DestinationList(
         verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
         item {
-            Column {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(
                     text = "TourVerse",
                     style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.Bold
                 )
-
-                Spacer(modifier = Modifier.height(6.dp))
-
                 Text(
                     text = "Discover unforgettable destinations.",
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                OutlinedTextField(
+                    value = state.search,
+                    onValueChange = onSearchChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Search") },
+                    singleLine = true
+                )
+                OutlinedTextField(
+                    value = state.country,
+                    onValueChange = onCountryChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Country") },
+                    singleLine = true
+                )
+                OutlinedTextField(
+                    value = state.city,
+                    onValueChange = onCityChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("City") },
+                    singleLine = true
+                )
+                OutlinedTextField(
+                    value = state.category,
+                    onValueChange = onCategoryChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Category") },
+                    singleLine = true
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    TextButton(onClick = onSortFieldClick) {
+                        Text("Sort: ${state.sortBy.label}")
+                    }
+                    TextButton(onClick = onSortDirectionClick) {
+                        Text(state.sortDirection.label)
+                    }
+                    TextButton(onClick = onPageSizeClick) {
+                        Text("${state.pageSize} per page")
+                    }
+                }
+                if (state.isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                }
             }
         }
 
-        items(destinations, key = { it.id }) { destination ->
-            DestinationCard(destination)
+        if (state.isEmpty) {
+            item {
+                Text(
+                    text = "No destinations match the current search and filters.",
+                    modifier = Modifier.padding(vertical = 32.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        } else {
+            items(state.destinations, key = { it.id }) { destination ->
+                DestinationCard(destination)
+            }
+        }
+
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(onClick = onPrevious, enabled = state.canGoPrevious) {
+                    Text("Previous")
+                }
+                Text(
+                    text = if (state.totalPages == 0) {
+                        "Page 1 of 1"
+                    } else {
+                        "Page ${state.currentPage} of ${state.totalPages} · ${state.totalItems} total"
+                    }
+                )
+                Button(onClick = onNext, enabled = state.canGoNext) {
+                    Text("Next")
+                }
+            }
         }
     }
 }
@@ -95,48 +190,49 @@ private fun DestinationList(
 private fun DestinationCard(destination: Destination) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column {
-            Image(
-                painter = rememberAsyncImagePainter(destination.imageUrl),
-                contentDescription = destination.name,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(210.dp)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentScale = ContentScale.Crop
-            )
-
-            Column(modifier = Modifier.padding(18.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+            val imageUrl = destination.coverImageUrl?.trim()?.takeIf(String::isNotEmpty)
+            if (imageUrl == null) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(210.dp)
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = destination.category,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.SemiBold
-                    )
-
-                    Text(
-                        text = "★ ${destination.rating}",
-                        fontWeight = FontWeight.SemiBold
+                        text = "No image available",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+            } else {
+                Image(
+                    painter = rememberAsyncImagePainter(imageUrl),
+                    contentDescription = destination.name,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(210.dp)
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentScale = ContentScale.Crop
+                )
+            }
 
+            Column(modifier = Modifier.padding(18.dp)) {
+                Text(
+                    text = destination.category,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold
+                )
                 Spacer(modifier = Modifier.height(10.dp))
-
                 Text(
                     text = destination.name,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
-
                 Text(
-                    text = destination.location,
+                    text = destination.displayLocation,
                     color = MaterialTheme.colorScheme.primary
                 )
-
                 Spacer(modifier = Modifier.height(8.dp))
-
                 Text(
                     text = destination.description,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -148,10 +244,7 @@ private fun DestinationCard(destination: Destination) {
 
 @Composable
 private fun LoadingContent(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         CircularProgressIndicator()
     }
 }
@@ -170,9 +263,7 @@ private fun ErrorContent(
         verticalArrangement = Arrangement.Center
     ) {
         Text(message)
-
         Spacer(modifier = Modifier.height(14.dp))
-
         Button(onClick = onRetry) {
             Text("Try again")
         }

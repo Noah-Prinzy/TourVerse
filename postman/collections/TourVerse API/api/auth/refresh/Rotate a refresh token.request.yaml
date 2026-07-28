@@ -1,0 +1,12 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/auth/refresh"
+method: POST
+headers:
+  Accept: application/json
+body:
+  type: text
+  content: ""
+settings: {}
+examples: ./.resources/Rotate a refresh token.resources/examples
+order: 1000

@@ -4,13 +4,19 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Destination(
-    val id: Int,
+    val id: String,
     val name: String,
+    val country: String,
+    val city: String? = null,
     val description: String,
-    val location: String,
     val category: String,
-    val imageUrl: String,
-    val latitude: Double,
-    val longitude: Double,
-    val rating: Double
-)
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    val coverImageUrl: String? = null,
+    val createdAt: String,
+    val updatedAt: String
+) {
+    val displayLocation: String
+        get() = listOfNotNull(city?.trim()?.takeIf(String::isNotEmpty), country.trim())
+            .joinToString(", ")
+}

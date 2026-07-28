@@ -1,0 +1,5 @@
+$kind: http-request
+name: New Request
+url: "{{baseUrl}}/api/notifications/9056b414-eb21-4765-b0ab-17e7bbb479cd/read"
+method: PUT
+order: 3862926889844877

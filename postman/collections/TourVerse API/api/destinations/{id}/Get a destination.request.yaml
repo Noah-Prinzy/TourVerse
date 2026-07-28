@@ -1,0 +1,30 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/destinations/:id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: id
+    value: 7358ceff-ac5d-8a0f-4608-e8df9ae9a85b
+    disabled: false
+    description: ""
+    $type: |-
+      {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+body:
+  type: text
+  content: ""
+settings: {}
+examples: ./.resources/Get a destination.resources/examples
+order: 1000

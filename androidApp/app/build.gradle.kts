@@ -114,6 +114,9 @@ dependencies {
     implementation("io.coil-kt.coil3:coil-compose:3.2.0")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.2.0")
 
+    testImplementation(kotlin("test-junit"))
+    testImplementation("io.ktor:ktor-client-mock:3.1.2")
+
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }

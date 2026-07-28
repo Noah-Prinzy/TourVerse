@@ -28,7 +28,8 @@ a {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -131,12 +132,38 @@ input {
   letter-spacing: -0.045em;
 }
 
-.section-heading input {
-  width: min(100%, 320px);
-  min-height: 48px;
-  padding: 0 16px;
+.result-count {
+  margin: 0;
+  color: #506158;
+  font-weight: 700;
+}
+
+.destination-controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 34px;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #dbe3de;
+}
+
+.destination-controls label {
+  display: grid;
+  gap: 7px;
+  color: #41534a;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.destination-controls input,
+.destination-controls select {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 13px;
   border: 1px solid #c9d3cd;
   background: white;
+  color: #15231d;
 }
 
 .destination-grid {
@@ -156,6 +183,14 @@ input {
   height: 240px;
   display: block;
   object-fit: cover;
+}
+
+.destination-image-placeholder {
+  display: grid;
+  place-items: center;
+  background: #e3ebe6;
+  color: #506158;
+  font-weight: 700;
 }
 
 .destination-content {
@@ -194,7 +229,47 @@ input {
 }
 
 .error-message {
+  padding: 20px;
+  border: 1px solid #d9a8a8;
+  background: #fff4f4;
   color: #a42828;
+  font-weight: 700;
+}
+
+.error-message p {
+  margin-top: 0;
+}
+
+.error-message button,
+.pagination button {
+  min-height: 42px;
+  padding: 0 18px;
+  border: 0;
+  background: #183c2d;
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.status-message,
+.empty-message {
+  padding: 36px 0;
+  color: #506158;
+  font-weight: 700;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 36px;
+  color: #41534a;
   font-weight: 700;
 }
 
@@ -205,6 +280,10 @@ footer {
 }
 
 @media (max-width: 900px) {
+  .destination-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .destination-grid {
     grid-template-columns: 1fr 1fr;
   }
@@ -224,11 +303,16 @@ footer {
     flex-direction: column;
   }
 
-  .section-heading input {
-    width: 100%;
+  .destination-controls {
+    grid-template-columns: 1fr;
   }
 
   .destination-grid {
     grid-template-columns: 1fr;
+  }
+
+  .pagination {
+    justify-content: space-between;
+    gap: 10px;
   }
 }

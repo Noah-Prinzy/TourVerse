@@ -1,0 +1,10 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/bookings"
+method: GET
+body:
+  type: text
+  content: ""
+settings: {}
+examples: ./.resources/List authenticated user's bookings.resources/examples
+order: 1000

@@ -1,0 +1,10 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/notifications"
+method: GET
+body:
+  type: text
+  content: ""
+settings: {}
+examples: ./.resources/List authenticated user's notifications.resources/examples
+order: 1000

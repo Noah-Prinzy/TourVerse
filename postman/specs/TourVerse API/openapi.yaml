@@ -1,0 +1,212 @@
+openapi: 3.0.3
+info:
+  title: TourVerse API
+  version: 1.0.0
+  description: REST API for destinations, accounts, community features, itineraries, tourism services, bookings, notifications, and administration.
+servers:
+  - url: http://localhost:8080
+    description: Local development
+security:
+  - bearerAuth: []
+tags:
+  - name: Health
+  - name: Authentication
+  - name: Destinations
+  - name: Profiles
+  - name: Categories
+  - name: Reviews
+  - name: Favorites
+  - name: Trips
+  - name: Services
+  - name: Bookings
+  - name: Notifications
+  - name: Administration
+paths:
+  /api/health:
+    get:
+      tags: [Health]
+      security: []
+      summary: Check API health
+      responses:
+        '200': { description: API is running }
+  /api/auth/register:
+    post:
+      tags: [Authentication]
+      security: []
+      summary: Register a user
+      responses:
+        '201': { description: User registered }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { description: Email already registered }
+  /api/auth/login:
+    post:
+      tags: [Authentication]
+      security: []
+      summary: Log in and receive access and refresh tokens
+      responses:
+        '200': { description: Authentication successful }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/auth/refresh:
+    post:
+      tags: [Authentication]
+      security: []
+      summary: Rotate a refresh token
+      responses:
+        '200': { description: Tokens rotated }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/destinations:
+    get:
+      tags: [Destinations]
+      security: []
+      summary: Search and list destinations
+      parameters:
+        - { name: search, in: query, schema: { type: string } }
+        - { name: country, in: query, schema: { type: string } }
+        - { name: city, in: query, schema: { type: string } }
+        - { name: category, in: query, schema: { type: string } }
+        - { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+        - { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+      responses:
+        '200': { description: Paginated destinations }
+    post:
+      tags: [Destinations]
+      summary: Create a destination
+      responses:
+        '201': { description: Destination created }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/destinations/{id}:
+    parameters:
+      - $ref: '#/components/parameters/UuidPath'
+    get:
+      tags: [Destinations]
+      security: []
+      summary: Get a destination
+      responses:
+        '200': { description: Destination found }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Destinations]
+      summary: Update a destination
+      responses:
+        '200': { description: Destination updated }
+    delete:
+      tags: [Destinations]
+      summary: Delete a destination
+      responses:
+        '200': { description: Destination deleted }
+  /api/categories:
+    get:
+      tags: [Categories]
+      security: []
+      summary: List active categories
+      responses:
+        '200': { description: Category list }
+    post:
+      tags: [Categories]
+      summary: Create a category as administrator
+      responses:
+        '201': { description: Category created }
+  /api/users/me/profile:
+    get:
+      tags: [Profiles]
+      summary: Get the authenticated profile
+      responses:
+        '200': { description: User profile }
+    put:
+      tags: [Profiles]
+      summary: Update the authenticated profile
+      responses:
+        '200': { description: Profile updated }
+  /api/favorites:
+    get:
+      tags: [Favorites]
+      summary: List authenticated user's favorites
+      responses:
+        '200': { description: Favorite destinations }
+  /api/trips:
+    get:
+      tags: [Trips]
+      summary: List authenticated user's trips
+      responses:
+        '200': { description: Trips }
+    post:
+      tags: [Trips]
+      summary: Create a trip
+      responses:
+        '201': { description: Trip created }
+  /api/services:
+    get:
+      tags: [Services]
+      security: []
+      summary: List tourism services
+      responses:
+        '200': { description: Services }
+    post:
+      tags: [Services]
+      summary: Create a tourism service
+      responses:
+        '201': { description: Service created }
+  /api/bookings:
+    get:
+      tags: [Bookings]
+      summary: List authenticated user's bookings
+      responses:
+        '200': { description: Bookings }
+    post:
+      tags: [Bookings]
+      summary: Create a booking
+      responses:
+        '201': { description: Booking created }
+  /api/notifications:
+    get:
+      tags: [Notifications]
+      summary: List authenticated user's notifications
+      responses:
+        '200': { description: Notifications }
+  /api/admin/statistics:
+    get:
+      tags: [Administration]
+      summary: Get platform statistics as administrator
+      responses:
+        '200': { description: Platform statistics }
+        '403': { $ref: '#/components/responses/Forbidden' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: TourVerse-HMAC
+  parameters:
+    UuidPath:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+  schemas:
+    ApiMessage:
+      type: object
+      required: [status, message]
+      properties:
+        status: { type: string }
+        message: { type: string }
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiMessage' }
+    Unauthorized:
+      description: Authentication required or invalid
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiMessage' }
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiMessage' }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiMessage' }

@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource
 import io.github.cdimascio.dotenv.Dotenv
 import org.flywaydb.core.Flyway
 import org.slf4j.LoggerFactory
+import org.jetbrains.exposed.v1.jdbc.Database
 
 object DatabaseFactory {
 
@@ -30,12 +31,19 @@ object DatabaseFactory {
 
         try {
             runMigrations(newDataSource)
+
+            Database.connect(newDataSource)
+            logger.info("Exposed connected successfully to the TourVerse database.")
+
             dataSource = newDataSource
+
             logger.info("TourVerse database initialization completed successfully.")
         } catch (exception: Exception) {
             newDataSource.close()
+
             throw IllegalStateException(
-                "TourVerse database initialization failed. Check the database connection and migration configuration.",
+                "TourVerse database initialization failed. " +
+                        "Check the database connection and migration configuration.",
                 exception
             )
         }
@@ -96,7 +104,7 @@ object DatabaseFactory {
             ?.takeIf(String::isNotEmpty)
             ?: throw IllegalStateException(
                 "Missing required database configuration: $name. " +
-                    "Set it as an environment variable or in a local backend .env file."
+                        "Set it as an environment variable or in a local backend .env file."
             )
     }
 

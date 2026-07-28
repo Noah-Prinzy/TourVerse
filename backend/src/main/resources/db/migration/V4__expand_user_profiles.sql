@@ -1,0 +1,4 @@
+ALTER TABLE users
+    ADD COLUMN nationality VARCHAR(100),
+    ADD COLUMN travel_interests TEXT NOT NULL DEFAULT '',
+    ADD COLUMN profile_public BOOLEAN NOT NULL DEFAULT TRUE;

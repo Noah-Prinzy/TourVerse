@@ -1,0 +1,13 @@
+$kind: collection
+name: TourVerse API
+description: REST API for destinations, accounts, community features, itineraries, tourism services, bookings, notifications, and administration.
+variables:
+  baseUrl: http://localhost:8080
+  accessToken: ""
+  refreshToken: ""
+auth:
+  - id: 65c90c0f-bc84-4e3f-8cb6-44ea2a4a76db
+    type: bearer
+    name: bearer auth
+    credentials:
+      token: eyJ1c2VySWQiOiJkNjFhYmJjZS0xZWFlLTRjN2QtYTkyMi03M2U1MmU4ZDNkZTEiLCJyb2xlIjoiQlVTSU5FU1NfT1dORVIiLCJpc3N1ZWRBdCI6MTc4NTI0MzQ3MywiZXhwaXJlc0F0IjoxNzg1MjQ3MDczfQ.xugqiGSXM2WoReA6IocsFuMgV3pCw7su0z4niPuOtvQ

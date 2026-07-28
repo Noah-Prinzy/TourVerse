@@ -1,0 +1,10 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/users/me/profile"
+method: GET
+body:
+  type: text
+  content: ""
+settings: {}
+examples: ./.resources/Get the authenticated profile.resources/examples
+order: 1000

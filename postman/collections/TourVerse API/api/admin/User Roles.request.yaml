@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{baseUrl}}/api/admin/users/286d3299-85e0-4ddb-b7fd-83b9ad0847d3/role"
+method: PUT
+body:
+  type: json
+  content: "{\r\n  \"role\": \"ADMIN\"\r\n}"
+order: 4268500667894891

@@ -1,0 +1,11 @@
+workspace:
+  id: 48089f65-d782-4d34-8fe6-1c2f7c5940ce
+
+localResources:
+  specs:
+    - ../backend/src/main/resources/openapi/tourverse-openapi.yaml
+    - ../postman/specs/TourVerse API/openapi.yaml
+    - ../C:/Users/Noah/Desktop/Kotlin Projects/TourVerse/webApp/package.json
+resourceNameMappings:
+  specs:
+    - ../postman/specs/TourVerse API/openapi.yaml: TourVerse API

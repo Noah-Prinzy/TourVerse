@@ -1,0 +1,10 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/bookings"
+method: POST
+body:
+  type: text
+  content: ""
+settings: {}
+examples: ./.resources/Create a booking.resources/examples
+order: 2000

@@ -1,0 +1,10 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/categories"
+method: POST
+body:
+  type: text
+  content: ""
+settings: {}
+examples: ./.resources/Create a category as administrator.resources/examples
+order: 2000

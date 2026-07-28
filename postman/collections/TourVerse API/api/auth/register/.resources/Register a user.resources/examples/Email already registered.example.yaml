@@ -1,0 +1,18 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/api/auth/register"
+  method: POST
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 409
+  statusText: Conflict
+  body:
+    type: text
+    content: ""
+order: 3000

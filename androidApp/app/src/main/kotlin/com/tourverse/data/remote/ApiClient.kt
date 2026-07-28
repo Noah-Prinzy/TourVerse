@@ -7,14 +7,14 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 object ApiClient {
+    val json = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+    }
+
     val client = HttpClient(OkHttp) {
         install(ContentNegotiation) {
-            json(
-                Json {
-                    ignoreUnknownKeys = true
-                    isLenient = true
-                }
-            )
+            json(json)
         }
     }
 }

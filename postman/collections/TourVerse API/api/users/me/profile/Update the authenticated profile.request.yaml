@@ -1,0 +1,10 @@
+$kind: http-request
+description: ""
+url: "{{baseUrl}}/api/users/me/profile"
+method: PUT
+body:
+  type: text
+  content: ""
+settings: {}
+examples: ./.resources/Update the authenticated profile.resources/examples
+order: 2000
