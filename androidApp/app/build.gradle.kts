@@ -11,7 +11,7 @@ fun String.asBuildConfigString(): String =
 val physicalApiBaseUrl = providers
     .gradleProperty("tourverse.physicalApiUrl")
     .orElse(providers.environmentVariable("TOURVERSE_PHYSICAL_API_URL"))
-    .orElse("http://192.168.0.150:8080/")
+    .orElse("http://192.168.1.73:8080/")
 
 val productionApiBaseUrl = providers
     .gradleProperty("tourverse.productionApiUrl")

@@ -1,26 +1,27 @@
-# Fix Local API Connection for Physical Device
+# Fix TourVerse Connection Error
 
-The app is currently using `10.0.2.2`, which is a special address that only works from an Android Emulator to reach the host computer. Physical devices cannot use this address and must use the computer's actual local network IP.
-
-## User Review Required
-
-> [!IMPORTANT]
-> To connect your phone to your local server:
-> 1. Your **phone and computer must be on the same Wi-Fi network**.
-> 2. Your backend server must be configured to listen on all interfaces (e.g., `0.0.0.0`) rather than just `localhost` (`127.0.0.1`).
-> 3. Your computer's firewall must allow incoming connections on port **8080**.
+The "Unable to connect" error is caused by your computer's local IP address changing. The app is currently trying to connect to `192.168.0.150`, but your computer's new IP is `192.168.1.73`.
 
 ## Proposed Changes
 
 ### [app]
 
-#### [MODIFY] [TourismApi.kt](file:///C:/Users/Noah/Desktop/Kotlin Projects/TourVerse/androidApp/app/src/main/kotlin/com/tourverse/data/remote/TourismApi.kt)
-
-Change the `baseUrl` to use your computer's local IP address: `192.168.0.150`.
+#### [MODIFY] [build.gradle.kts](file:///C:/Users/Noah/Desktop/Kotlin Projects/TourVerse/androidApp/app/build.gradle.kts)
+- Update the default value for `physicalApiBaseUrl` to use the current IP: `http://192.168.1.73:8080/`.
 
 ## Verification Plan
 
 ### Manual Verification
-- Deploy the updated app to your phone.
-- Ensure the backend server is running on your computer at port 8080.
-- Verify that the destinations are successfully fetched without a timeout.
+1. Re-sync Gradle to apply the IP change to the `physical` flavor.
+2. Deploy the `physicalDebug` variant to your phone.
+3. Verify that the "Unable to connect" message is gone and destinations load correctly.
+
+---
+
+> [!TIP]
+> **Pro-Tip: Avoid editing this file every time your IP changes!**
+> You can set this IP in your `gradle.properties` file (which is usually ignored by Git) instead of hardcoding it in the build script:
+> ```properties
+> tourverse.physicalApiUrl=http://192.168.1.73:8080/
+> ```
+> The build script is already set up to look for this property!

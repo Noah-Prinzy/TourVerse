@@ -1,33 +1,19 @@
-# Walkthrough - Build and Connectivity Fixes
+# Walkthrough - Fixed Connection Error
 
-I have resolved the JVM target mismatch and fixed the networking configuration to allow the physical device to connect to your local backend.
+I have updated the IP address used by the `physical` build flavor to match your computer's current local network address.
 
 ## Changes
 
 ### [app]
 
 #### [build.gradle.kts](file:///C:/Users/Noah/Desktop/Kotlin Projects/TourVerse/androidApp/app/build.gradle.kts)
-Aligned JVM targets to version 21.
-
-#### [TourismApi.kt](file:///C:/Users/Noah/Desktop/Kotlin Projects/TourVerse/androidApp/app/src/main/kotlin/com/tourverse/data/remote/TourismApi.kt)
-Updated the API base URL to use your computer's local IP address (`192.168.0.150`).
-
-```kotlin
-    companion object {
-        private const val BASE_URL = "http://192.168.0.150:8080/"
-    }
-```
+Updated the `physicalApiBaseUrl` from `192.168.0.150` to `192.168.1.73`.
 
 ## Verification Results
 
-### Build and Deployment
-- Executed `gradlew :app:assembleDebug`.
-- Successfully deployed to physical device **Z2577** via Wireless ADB.
+### Deployment
+- Successfully deployed `physicalDebug` to device **Z2577**.
+- Verified the backend is running and listening on port 8080.
 
-### Connectivity Checklist
-> [!IMPORTANT]
-> Since the app is now deployed with the new IP, please ensure:
-> 1. **Same Wi-Fi**: Phone and PC are on the same network.
-> 2. **Backend**: Running on port 8080.
-> 3. **Host**: Listening on `0.0.0.0`.
-> 4. **Firewall**: Port 8080 is open for inbound traffic on Windows.
+> [!NOTE]
+> Since your IP changed from `192.168.0.x` to `192.168.1.x`, it's possible your router assigned a new subnet. If you move between different Wi-Fi networks, you'll likely need to perform this update again.
