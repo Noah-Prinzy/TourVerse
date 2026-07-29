@@ -17,6 +17,7 @@ object DatabaseFactory {
     private const val DATABASE_PASSWORD = "TOURVERSE_DATABASE_PASSWORD"
     private const val MARKETPLACE_DATABASE_URL = "DATABASE_URL"
     private const val MARKETPLACE_DATABASE_URL_UNPOOLED = "DATABASE_URL_UNPOOLED"
+    private const val RUN_MIGRATIONS = "TOURVERSE_RUN_MIGRATIONS"
 
     private val logger = LoggerFactory.getLogger(DatabaseFactory::class.java)
 
@@ -35,7 +36,11 @@ object DatabaseFactory {
         val newDataSource = createDataSource(databaseConfig)
 
         try {
-            runMigrations(databaseConfig)
+            if (AppEnvironment.getBoolean(RUN_MIGRATIONS, true)) {
+                runMigrations(databaseConfig)
+            } else {
+                logger.info("Flyway migrations are disabled for this application startup.")
+            }
 
             Database.connect(newDataSource)
             logger.info("Exposed connected successfully to the TourVerse database.")
