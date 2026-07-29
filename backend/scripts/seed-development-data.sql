@@ -52,12 +52,16 @@ WITH seed(name, country, city, description, category) AS (
         ('Ndere Cultural Centre', 'Uganda', 'Kampala', 'A cultural venue used for developing performing-arts and heritage experiences.', 'Culture')
 )
 INSERT INTO destinations (
-    id, name, country, city, description, category,
-    latitude, longitude, cover_image_url, created_at, updated_at
+    id, name, country, country_code, city, description, category,
+    latitude, longitude, cover_image_url,
+    data_origin, cache_status, verification_status, verification_confidence,
+    created_at, updated_at
 )
 SELECT
-    gen_random_uuid(), seed.name, seed.country, seed.city, seed.description,
-    seed.category, NULL, NULL, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+    gen_random_uuid(), seed.name, seed.country, 'UG', seed.city, seed.description,
+    seed.category, NULL, NULL, NULL,
+    'DEVELOPMENT_SEED', 'NOT_APPLICABLE', 'PARTIALLY_VERIFIED', 0.7500,
+    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
 FROM seed
 WHERE NOT EXISTS (
     SELECT 1
@@ -65,5 +69,11 @@ WHERE NOT EXISTS (
     WHERE LOWER(existing.name) = LOWER(seed.name)
       AND LOWER(existing.country) = LOWER(seed.country)
 );
+
+UPDATE destinations
+SET country_code = 'UG',
+    updated_at = CURRENT_TIMESTAMP
+WHERE country_code IS NULL
+  AND LOWER(country) = 'uganda';
 
 COMMIT;

@@ -8,6 +8,8 @@ import { FavoritesPage } from "./features/favorites/FavoritesPage";
 import { TripDetailsPage, TripsPage } from "./features/trips/TripPages";
 import { NotFoundPage } from "./pages/PlaceholderPages";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
+import { AdminRoute } from "./routes/AdminRoute";
+import { DestinationCandidatePage, DestinationImportsPage } from "./features/admin/DestinationImportsPage";
 
 export default function RouterApp() {
   return <Routes>
@@ -22,6 +24,12 @@ export default function RouterApp() {
         <Route path="favorites" element={<FavoritesPage />} />
         <Route path="trips" element={<TripsPage />} />
         <Route path="trips/:tripId" element={<TripDetailsPage />} />
+      </Route>
+      <Route element={<AdminRoute />}>
+        <Route path="admin/destination-imports" element={<DestinationImportsPage />} />
+        <Route path="admin/destination-imports/new" element={<DestinationImportsPage />} />
+        <Route path="admin/destination-imports/:batchId" element={<DestinationImportsPage />} />
+        <Route path="admin/destination-imports/candidates/:candidateId" element={<DestinationCandidatePage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Route>

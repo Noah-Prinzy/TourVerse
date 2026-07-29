@@ -50,10 +50,11 @@ class TourismApiTest {
             )
         })
 
-        val response = TourismApi(client, "http://localhost:8080").getDestinations(
+        val response = TourismApi(client, "http://localhost:8081").getDestinations(
             DestinationQuery(
                 search = "mara & wildlife",
                 country = "Kenya",
+                countryCode = "KE",
                 page = 2,
                 size = 10,
                 sortBy = DestinationSortField.NAME,
@@ -65,10 +66,25 @@ class TourismApiTest {
         assertEquals(2, response.page)
         check("search=mara+%26+wildlife" in requestedUrl || "search=mara%20%26%20wildlife" in requestedUrl)
         check("country=Kenya" in requestedUrl)
+        check("countryCode=KE" in requestedUrl)
         check("page=2" in requestedUrl)
         check("size=10" in requestedUrl)
         check("sortBy=name" in requestedUrl)
         check("sortDirection=asc" in requestedUrl)
+    }
+
+    @Test
+    fun parsesBackendDrivenCountryOptions() = runBlocking {
+        val client = client(MockEngine {
+            respond(
+                """{"countries":[{"code":"KE","name":"Kenya","destinationCount":12}]}""",
+                HttpStatusCode.OK,
+                jsonHeaders
+            )
+        })
+        val response = TourismApi(client, "http://localhost:8081").getDestinationCountries()
+        assertEquals("KE", response.countries.single().code)
+        assertEquals(12, response.countries.single().destinationCount)
     }
 
     @Test
@@ -82,7 +98,7 @@ class TourismApiTest {
         })
 
         val exception = assertFailsWith<DestinationApiException> {
-            TourismApi(client, "http://localhost:8080")
+            TourismApi(client, "http://localhost:8081")
                 .getDestinations(DestinationQuery())
         }
 
@@ -96,7 +112,7 @@ class TourismApiTest {
         })
 
         val exception = assertFailsWith<DestinationApiException> {
-            TourismApi(client, "http://localhost:8080")
+            TourismApi(client, "http://localhost:8081")
                 .getDestinations(DestinationQuery())
         }
 

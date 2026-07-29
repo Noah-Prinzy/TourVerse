@@ -3,6 +3,7 @@ package com.tourverse.data.model
 data class DestinationQuery(
     val search: String = "",
     val country: String = "",
+    val countryCode: String = "",
     val city: String = "",
     val category: String = "",
     val page: Int = 1,

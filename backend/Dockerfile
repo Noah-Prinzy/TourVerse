@@ -8,6 +8,6 @@ WORKDIR /app
 RUN useradd --system --uid 10001 tourverse
 COPY --from=build /workspace/build/install/backend/ /app/
 USER tourverse
-EXPOSE 8080
+EXPOSE 8081
 ENV TOURVERSE_ENV=production
 ENTRYPOINT ["/app/bin/backend"]

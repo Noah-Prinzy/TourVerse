@@ -6,8 +6,10 @@ import type {
   SortDirection,
 } from "./models/Destination";
 import { getDestinations } from "./services/api";
+import { getDestinationCountries } from "./services/api";
 import { getCategories } from "./services/communityApi";
 import type { Category } from "./models/Community";
+import type { DestinationCountry } from "./models/Destination";
 
 const PAGE_SIZES = [10, 20, 50];
 
@@ -18,6 +20,8 @@ function App() {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [country, setCountry] = useState("");
+  const [countries, setCountries] = useState<DestinationCountry[]>([]);
+  const [countriesError, setCountriesError] = useState("");
   const [city, setCity] = useState("");
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
@@ -33,6 +37,9 @@ function App() {
 
   useEffect(() => {
     getCategories().then(setCategories).catch(() => setCategories([]));
+    getDestinationCountries()
+      .then((response) => setCountries(response.countries))
+      .catch(() => setCountriesError("Country filters are temporarily unavailable."));
   }, []);
 
   useEffect(() => {
@@ -51,7 +58,7 @@ function App() {
     getDestinations(
       {
         search,
-        country,
+        countryCode: country,
         city,
         category,
         page,
@@ -114,7 +121,7 @@ function App() {
         <section className="hero">
           <div className="hero-content">
             <p className="eyebrow">Your next journey begins here</p>
-            <h1>Discover unforgettable places across Uganda.</h1>
+            <h1>Discover unforgettable places around the world.</h1>
             <p>
               Find natural wonders, cultural experiences and exciting
               adventures for your next trip.
@@ -148,13 +155,20 @@ function App() {
             </label>
             <label>
               <span>Country</span>
-              <input
+              <select
                 value={country}
                 onChange={(event) =>
                   updateFilter(setCountry, event.target.value)
                 }
-                placeholder="Any country"
-              />
+              >
+                <option value="">All countries</option>
+                {countries.map((item) => (
+                  <option key={item.code} value={item.code}>
+                    {item.name} ({item.destinationCount})
+                  </option>
+                ))}
+              </select>
+              {countriesError && <small role="status">{countriesError}</small>}
             </label>
             <label>
               <span>City</span>

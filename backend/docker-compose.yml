@@ -21,7 +21,7 @@ services:
       postgres:
         condition: service_healthy
     ports:
-      - "${TOURVERSE_PORT:-8080}:8080"
+      - "${TOURVERSE_PORT:-8081}:8081"
     environment:
       TOURVERSE_ENV: production
       TOURVERSE_DATABASE_URL: jdbc:postgresql://postgres:5432/tourverse_db
@@ -31,7 +31,7 @@ services:
       TOURVERSE_ALLOWED_ORIGINS: ${TOURVERSE_ALLOWED_ORIGINS:?Set TOURVERSE_ALLOWED_ORIGINS}
       TOURVERSE_RATE_LIMIT_PER_MINUTE: ${TOURVERSE_RATE_LIMIT_PER_MINUTE:-120}
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/health >/dev/null || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8081/api/health >/dev/null || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 10

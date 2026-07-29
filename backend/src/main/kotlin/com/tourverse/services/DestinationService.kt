@@ -18,6 +18,8 @@ class DestinationService(
     suspend fun getDestinationById(id: UUID): Destination? =
         repository.getById(id)
 
+    suspend fun getCountries() = repository.getCountries()
+
     suspend fun createDestination(request: CreateDestinationRequest): Destination {
         DestinationValidator.validate(request)
         return repository.create(request)

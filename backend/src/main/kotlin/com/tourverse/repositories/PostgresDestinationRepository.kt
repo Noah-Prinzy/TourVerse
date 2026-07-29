@@ -1,16 +1,25 @@
 package com.tourverse.repositories
 
 import com.tourverse.database.tables.DestinationsTable
+import com.tourverse.database.tables.DestinationSourceReferencesTable
 import com.tourverse.dto.PagedDestinationResponse
 import com.tourverse.models.CreateDestinationRequest
 import com.tourverse.models.Destination
 import com.tourverse.models.DestinationQuery
+import com.tourverse.models.DestinationCountry
 import com.tourverse.models.DestinationSortField
 import com.tourverse.models.SortDirection
 import com.tourverse.models.UpdateDestinationRequest
+import com.tourverse.models.DataOrigin
+import com.tourverse.models.CacheStatus
+import com.tourverse.models.VerificationStatus
+import com.tourverse.services.CountryCodeService
+import com.tourverse.utils.AppEnvironment
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.neq
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.lowerCase
 import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.core.like
@@ -47,7 +56,7 @@ class PostgresDestinationRepository : DestinationRepository {
             }
 
             val items = filteredQuery
-                .orderBy(sortColumn to sortOrder)
+                .orderBy(sortColumn to sortOrder, DestinationsTable.id to SortOrder.ASC)
                 .limit(query.size)
                 .offset(query.offset)
                 .map(::toDestination)
@@ -60,6 +69,38 @@ class PostgresDestinationRepository : DestinationRepository {
                 totalPages = if (totalItems == 0L) 0 else ((totalItems + query.size - 1) / query.size).toInt()
             )
         }
+
+    override suspend fun getCountries(): List<DestinationCountry> = suspendTransaction {
+        val query = DestinationsTable.selectAll()
+        query.andWhere {
+            DestinationsTable.verificationStatus neq VerificationStatus.REJECTED.name
+        }
+        if (!AppEnvironment.getBoolean(
+                "TOURVERSE_INCLUDE_DEVELOPMENT_SEED_DATA",
+                default = !AppEnvironment.isProduction
+            )
+        ) {
+            query.andWhere {
+                DestinationsTable.dataOrigin neq DataOrigin.DEVELOPMENT_SEED.name
+            }
+        }
+        query
+            .mapNotNull { row ->
+                row[DestinationsTable.countryCode]?.let { code ->
+                    code to row[DestinationsTable.country]
+                }
+            }
+            .groupBy({ it.first }, { it.second })
+            .map { (code, names) ->
+                DestinationCountry(
+                    code = code,
+                    name = names.groupingBy(String::trim).eachCount()
+                        .maxByOrNull { it.value }!!.key,
+                    destinationCount = names.size.toLong()
+                )
+            }
+            .sortedBy { it.name.lowercase() }
+    }
 
     override suspend fun getById(id: UUID): Destination? =
         suspendTransaction {
@@ -74,17 +115,23 @@ class PostgresDestinationRepository : DestinationRepository {
         suspendTransaction {
             val destinationId = UUID.randomUUID()
             val currentTime = OffsetDateTime.now(ZoneOffset.UTC)
+            val normalizedCountry = CountryCodeService.resolve(request.country, request.countryCode)
 
             DestinationsTable.insert { statement ->
                 statement[id] = destinationId
                 statement[name] = request.name.trim()
-                statement[country] = request.country.trim()
+                statement[country] = normalizedCountry.first
+                statement[countryCode] = normalizedCountry.second
                 statement[city] = request.city?.trim()?.takeIf(String::isNotEmpty)
                 statement[description] = request.description.trim()
                 statement[category] = request.category.trim()
                 statement[latitude] = request.latitude?.let(BigDecimal::valueOf)
                 statement[longitude] = request.longitude?.let(BigDecimal::valueOf)
                 statement[coverImageUrl] = request.coverImageUrl?.trim()?.takeIf(String::isNotEmpty)
+                statement[dataOrigin] = DataOrigin.TOURVERSE_CURATED.name
+                statement[cacheStatus] = CacheStatus.NOT_APPLICABLE.name
+                statement[verificationStatus] = VerificationStatus.VERIFIED.name
+                statement[editoriallyLocked] = true
                 statement[createdAt] = currentTime
                 statement[updatedAt] = currentTime
             }
@@ -98,17 +145,23 @@ class PostgresDestinationRepository : DestinationRepository {
 
     override suspend fun update(id: UUID, request: UpdateDestinationRequest): Destination? =
         suspendTransaction {
+            val normalizedCountry = CountryCodeService.resolve(request.country, request.countryCode)
             val updatedRows = DestinationsTable.update(
                 where = { DestinationsTable.id eq id }
             ) { statement ->
                 statement[name] = request.name.trim()
-                statement[country] = request.country.trim()
+                statement[country] = normalizedCountry.first
+                statement[countryCode] = normalizedCountry.second
                 statement[city] = request.city?.trim()?.takeIf(String::isNotEmpty)
                 statement[description] = request.description.trim()
                 statement[category] = request.category.trim()
                 statement[latitude] = request.latitude?.let(BigDecimal::valueOf)
                 statement[longitude] = request.longitude?.let(BigDecimal::valueOf)
                 statement[coverImageUrl] = request.coverImageUrl?.trim()?.takeIf(String::isNotEmpty)
+                statement[dataOrigin] = DataOrigin.TOURVERSE_CURATED.name
+                statement[cacheStatus] = CacheStatus.NOT_APPLICABLE.name
+                statement[verificationStatus] = VerificationStatus.VERIFIED.name
+                statement[editoriallyLocked] = true
                 statement[updatedAt] = OffsetDateTime.now(ZoneOffset.UTC)
             }
 
@@ -130,9 +183,24 @@ class PostgresDestinationRepository : DestinationRepository {
 
     private fun buildFilteredQuery(query: DestinationQuery): Query {
         val databaseQuery = DestinationsTable.selectAll()
+        databaseQuery.andWhere {
+            DestinationsTable.verificationStatus neq VerificationStatus.REJECTED.name
+        }
+        if (!AppEnvironment.getBoolean(
+                "TOURVERSE_INCLUDE_DEVELOPMENT_SEED_DATA",
+                default = !AppEnvironment.isProduction
+            )
+        ) {
+            databaseQuery.andWhere {
+                DestinationsTable.dataOrigin neq DataOrigin.DEVELOPMENT_SEED.name
+            }
+        }
 
         query.country?.trim()?.takeIf(String::isNotEmpty)?.let { country ->
             databaseQuery.andWhere { DestinationsTable.country.lowerCase() eq country.lowercase() }
+        }
+        query.countryCode?.trim()?.takeIf(String::isNotEmpty)?.let { countryCode ->
+            databaseQuery.andWhere { DestinationsTable.countryCode eq countryCode.uppercase() }
         }
         query.city?.trim()?.takeIf(String::isNotEmpty)?.let { city ->
             databaseQuery.andWhere { DestinationsTable.city.lowerCase() eq city.lowercase() }
@@ -155,6 +223,15 @@ class PostgresDestinationRepository : DestinationRepository {
     }
 
     private fun toDestination(row: ResultRow): Destination {
+        val references = DestinationSourceReferencesTable.selectAll().where {
+            (DestinationSourceReferencesTable.destinationId eq row[DestinationsTable.id]) and
+                (DestinationSourceReferencesTable.active eq true)
+        }.toList()
+        val attribution = references.mapNotNull { it[DestinationSourceReferencesTable.attribution] }
+            .distinct().takeIf { it.isNotEmpty() }?.joinToString("; ")
+        val googlePlaceId = references.firstOrNull {
+            it[DestinationSourceReferencesTable.sourceProvider] == "GOOGLE_PLACES"
+        }?.get(DestinationSourceReferencesTable.providerPlaceId)
         return Destination(
             id = row[DestinationsTable.id],
             name = row[DestinationsTable.name],
@@ -165,8 +242,14 @@ class PostgresDestinationRepository : DestinationRepository {
             latitude = row[DestinationsTable.latitude]?.toDouble(),
             longitude = row[DestinationsTable.longitude]?.toDouble(),
             coverImageUrl = row[DestinationsTable.coverImageUrl],
+            countryCode = row[DestinationsTable.countryCode],
             createdAt = row[DestinationsTable.createdAt].toInstant(),
-            updatedAt = row[DestinationsTable.updatedAt].toInstant()
+            updatedAt = row[DestinationsTable.updatedAt].toInstant(),
+            dataOrigin = DataOrigin.valueOf(row[DestinationsTable.dataOrigin]),
+            lastVerifiedAt = row[DestinationsTable.lastVerifiedAt]?.toInstant(),
+            verificationStatus = VerificationStatus.valueOf(row[DestinationsTable.verificationStatus]),
+            attributionSummary = attribution,
+            googlePlaceId = googlePlaceId
         )
     }
 }

@@ -9,7 +9,7 @@ implementation remains authoritative where the two differ.
 Default base URL:
 
 ```text
-http://localhost:8080
+http://localhost:8081
 ```
 
 Requests and responses use JSON. Protected routes require:
@@ -109,6 +109,7 @@ updates accept nullable `firstName`, `lastName`, `bio`, `nationality`,
 | Method | Path | Current access | Request/response |
 | --- | --- | --- | --- |
 | GET | `/api/destinations` | Public | `PagedDestinationResponse` |
+| GET | `/api/destinations/countries` | Public | `DestinationCountriesResponse` |
 | GET | `/api/destinations/{id}` | Public | `Destination` |
 | POST | `/api/destinations` | ADMIN | `CreateDestinationRequest` -> 201 |
 | PUT | `/api/destinations/{id}` | ADMIN | Full `UpdateDestinationRequest` |
@@ -123,6 +124,7 @@ List query parameters:
 | --- | --- |
 | `search` | Case-insensitive match across name, country, city, description, category |
 | `country`, `city`, `category` | Case-insensitive exact filters |
+| `countryCode` | Recognized ISO 3166-1 alpha-2 code; preferred country filter |
 | `page` | Integer, minimum 1, default 1 |
 | `size` | Integer 1–100, default 20 |
 | `sortBy` | `name`, `country`, `city`, `category`, `createdAt`, `updatedAt` |
@@ -134,6 +136,7 @@ Create and update use the same full body:
 {
   "name": "Maasai Mara National Reserve",
   "country": "Kenya",
+  "countryCode": "KE",
   "city": "Narok",
   "description": "A wildlife reserve in southwestern Kenya.",
   "category": "Wildlife",
@@ -153,6 +156,7 @@ supplied together. A list response is:
       "id": "00000000-0000-0000-0000-000000000000",
       "name": "Maasai Mara National Reserve",
       "country": "Kenya",
+      "countryCode": "KE",
       "city": "Narok",
       "description": "A wildlife reserve in southwestern Kenya.",
       "category": "Wildlife",
@@ -169,6 +173,40 @@ supplied together. A list response is:
   "totalPages": 1
 }
 ```
+
+`countryCode` is normalized to uppercase. It is nullable for legacy rows whose
+free-text country could not be mapped confidently. The country-options endpoint
+contains only codes present on approved `destinations` rows, sorted by display
+name with `destinationCount`; import candidates are never included.
+
+### Destination catalogue imports
+
+All routes below require an authenticated `ADMIN`. External results are stored
+as review candidates and remain outside public destination search.
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| POST | `/api/admin/destination-imports/search` | Start a bounded provider search |
+| GET | `/api/admin/destination-imports` | List import batches |
+| GET | `/api/admin/destination-imports/{batchId}` | Read one batch |
+| POST | `/api/admin/destination-imports/{batchId}/retry` | Retry as a new audited batch |
+| GET | `/api/admin/destination-imports/candidates` | List candidates; optional `batchId`, `status` |
+| GET | `/api/admin/destination-imports/candidates/{candidateId}` | Read candidate |
+| PUT | `/api/admin/destination-imports/candidates/{candidateId}` | Edit normalized review fields |
+| POST | `/api/admin/destination-imports/candidates/{candidateId}/approve` | Transactionally create and link destination |
+| POST | `/api/admin/destination-imports/candidates/{candidateId}/reject` | Reject with a reason |
+| POST | `/api/admin/destination-imports/candidates/{candidateId}/link` | Link source to an existing destination |
+
+Search bodies use `provider`, `countryCode`, optional `city` and `search`, and
+`limit` from 1 to 100. Supported provider names are `WIKIDATA` and
+`OPENTRIPMAP`; OpenTripMap is disabled until backend configuration and a terms
+review are complete. Candidate states are `PENDING_REVIEW`, `APPROVED`,
+`REJECTED`, `POSSIBLE_DUPLICATE`, and `IMPORT_FAILED`.
+
+Approval revalidates normalized destination fields and duplicate signals,
+requires an active backend category, refuses uncertain image licensing, creates
+the normal destination and source reference in one transaction, and prevents
+double approval. Similar names alone are never automatically merged.
 
 ### Categories
 
@@ -319,3 +357,30 @@ The Android and web clients now implement this destination contract using
 string UUIDs, `PagedDestinationResponse`, nullable destination fields, backend
 timestamps, pagination, search, country/city/category filters, sorting, and
 standard `ApiMessage` error responses.
+
+## Cache metadata and administrator synchronization
+
+Destination responses add `dataOrigin`, nullable `lastVerifiedAt`,
+`verificationStatus`, nullable `attributionSummary`, `mapAvailable`, and
+nullable `googlePlaceId`. Internal confidence algorithms, cache-control state,
+raw provider responses, and administrator notes are not public. Rejected rows
+and all pending candidates remain private.
+
+ADMIN-only routes:
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| POST | `/api/admin/catalogue/sync` | Bounded review-required sync |
+| POST | `/api/admin/catalogue/sync/country/{countryCode}` | Default country sync |
+| POST | `/api/admin/catalogue/refresh/{destinationId}` | Mark refresh pending |
+| GET | `/api/admin/catalogue/sync-jobs` | Audited import batches |
+| GET | `/api/admin/catalogue/stale` | Stale/expired destinations |
+| GET | `/api/admin/catalogue/destinations/{id}/sources` | Source references |
+| POST | `/api/admin/destinations/{id}/google-place/search` | Bounded transient Google match |
+| PUT | `/api/admin/destinations/{id}/google-place` | Save selected Place ID |
+| DELETE | `/api/admin/destinations/{id}/google-place` | Deactivate link |
+
+Sync is capped at 20 and requires `REVIEW_REQUIRED`; Google search is capped at
+five and requires coordinates. Missing backend configuration returns HTTP 503
+with `PROVIDER_NOT_CONFIGURED`. No raw Google payload, ratings, reviews, hours,
+photos, phone numbers, or descriptions are persisted.

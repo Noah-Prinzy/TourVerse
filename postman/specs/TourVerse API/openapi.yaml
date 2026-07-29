@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: REST API for destinations, accounts, community features, itineraries, tourism services, bookings, notifications, and administration.
 servers:
-  - url: http://localhost:8080
+  - url: http://localhost:8081
     description: Local development
 security:
   - bearerAuth: []
@@ -21,6 +21,7 @@ tags:
   - name: Bookings
   - name: Notifications
   - name: Administration
+  - name: Catalogue Imports
 paths:
   /api/health:
     get:
@@ -62,6 +63,7 @@ paths:
       parameters:
         - { name: search, in: query, schema: { type: string } }
         - { name: country, in: query, schema: { type: string } }
+        - { name: countryCode, in: query, schema: { type: string, pattern: '^[A-Z]{2}$' } }
         - { name: city, in: query, schema: { type: string } }
         - { name: category, in: query, schema: { type: string } }
         - { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
@@ -74,6 +76,13 @@ paths:
       responses:
         '201': { description: Destination created }
         '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/destinations/countries:
+    get:
+      tags: [Destinations]
+      security: []
+      summary: List countries represented by approved destinations
+      responses:
+        '200': { description: Sorted country options with destination counts }
   /api/destinations/{id}:
     parameters:
       - $ref: '#/components/parameters/UuidPath'
@@ -106,6 +115,101 @@ paths:
       summary: Create a category as administrator
       responses:
         '201': { description: Category created }
+  /api/admin/destination-imports:
+    get:
+      tags: [Catalogue Imports]
+      summary: List destination import batches as administrator
+      responses:
+        '200': { description: Import batch list }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/admin/destination-imports/search:
+    post:
+      tags: [Catalogue Imports]
+      summary: Start a bounded provider import as administrator
+      responses:
+        '201': { description: Import batch completed or recorded failed }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/admin/destination-imports/candidates:
+    get:
+      tags: [Catalogue Imports]
+      summary: List internal destination candidates
+      responses:
+        '200': { description: Candidate list }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/admin/destination-imports/candidates/{candidateId}:
+    parameters:
+      - { name: candidateId, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      tags: [Catalogue Imports]
+      summary: Read an import candidate
+      responses:
+        '200': { description: Candidate }
+    put:
+      tags: [Catalogue Imports]
+      summary: Edit normalized candidate fields
+      responses:
+        '200': { description: Candidate updated }
+  /api/admin/catalogue/sync:
+    post:
+      tags: [Catalogue Imports]
+      summary: Start a bounded review-required catalogue synchronization
+      responses:
+        '201': { description: Audited import batches }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/admin/catalogue/sync/country/{countryCode}:
+    post:
+      tags: [Catalogue Imports]
+      summary: Start a bounded Wikidata country synchronization
+      parameters:
+        - { name: countryCode, in: path, required: true, schema: { type: string, pattern: '^[A-Z]{2}$' } }
+      responses:
+        '201': { description: Audited import batch }
+  /api/admin/catalogue/refresh/{destinationId}:
+    post:
+      tags: [Catalogue Imports]
+      summary: Mark an approved destination refresh pending
+      parameters:
+        - { name: destinationId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Destination cache metadata updated }
+  /api/admin/catalogue/sync-jobs:
+    get:
+      tags: [Catalogue Imports]
+      summary: List catalogue synchronization jobs
+      responses:
+        '200': { description: Import batch list }
+  /api/admin/catalogue/stale:
+    get:
+      tags: [Catalogue Imports]
+      summary: List stale or expired approved destinations
+      responses:
+        '200': { description: Destination list }
+  /api/admin/catalogue/destinations/{destinationId}/sources:
+    get:
+      tags: [Catalogue Imports]
+      summary: List provider references for an approved destination
+      parameters:
+        - { name: destinationId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Source-reference list }
+  /api/admin/destinations/{destinationId}/google-place/search:
+    post:
+      tags: [Catalogue Imports]
+      summary: Search a bounded transient set of Google Place matches
+      responses:
+        '200': { description: Transient Google Place match summaries }
+        '503': { description: Google Places provider is not configured }
+  /api/admin/destinations/{destinationId}/google-place:
+    put:
+      tags: [Catalogue Imports]
+      summary: Link a selected Google Place ID
+      responses:
+        '200': { description: Minimal persisted provider reference }
+    delete:
+      tags: [Catalogue Imports]
+      summary: Deactivate a Google Place ID link
+      responses:
+        '200': { description: Link deactivated }
   /api/users/me/profile:
     get:
       tags: [Profiles]

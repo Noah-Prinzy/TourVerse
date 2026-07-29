@@ -56,7 +56,8 @@ fun HomeScreen(
             else -> DestinationList(
                 state = state,
                 onSearchChange = viewModel::updateSearch,
-                onCountryChange = viewModel::updateCountry,
+                onCountryClick = viewModel::cycleCountry,
+                onCountryRetry = viewModel::loadCountries,
                 onCityChange = viewModel::updateCity,
                 onCategoryClick = viewModel::cycleCategory,
                 onSortFieldClick = viewModel::cycleSortField,
@@ -75,7 +76,8 @@ fun HomeScreen(
 private fun DestinationList(
     state: HomeUiState,
     onSearchChange: (String) -> Unit,
-    onCountryChange: (String) -> Unit,
+    onCountryClick: () -> Unit,
+    onCountryRetry: () -> Unit,
     onCityChange: (String) -> Unit,
     onCategoryClick: () -> Unit,
     onSortFieldClick: () -> Unit,
@@ -109,13 +111,16 @@ private fun DestinationList(
                     label = { Text("Search") },
                     singleLine = true
                 )
-                OutlinedTextField(
-                    value = state.country,
-                    onValueChange = onCountryChange,
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Country") },
-                    singleLine = true
-                )
+                TextButton(onClick = onCountryClick, enabled = !state.countriesLoading) {
+                    val selected = state.countries.find { it.code == state.country }
+                    Text("Country: ${selected?.let { "${it.name} (${it.destinationCount})" } ?: "All countries"}")
+                }
+                state.countriesError?.let {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(it, color = MaterialTheme.colorScheme.error)
+                        TextButton(onClick = onCountryRetry) { Text("Retry") }
+                    }
+                }
                 OutlinedTextField(
                     value = state.city,
                     onValueChange = onCityChange,

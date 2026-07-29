@@ -200,7 +200,7 @@ For local development:
 
 ```text
 PostgreSQL localhost:5432
-Ktor      localhost:8080
+Ktor      localhost:8081
 Vite      localhost:5173
 Android   adb reverse, 10.0.2.2, or LAN host address
 ```
@@ -216,3 +216,44 @@ The repository does not implement payment-provider execution, binary media
 uploads, email delivery, push delivery, maps-provider services, or cloud
 hosting. Database fields such as payment status and image URLs represent
 application state, not proof of an external integration.
+
+## Global catalogue and provenance
+
+Normal web and Android discovery always reads approved PostgreSQL
+`destinations`. Country filters come from `/api/destinations/countries`; clients
+do not maintain separate country lists. `countryCode` uses ISO 3166-1 alpha-2
+where confidently known while the existing `country` display field remains
+backward compatible.
+
+External discovery is an administrator-only ingestion boundary:
+
+```text
+Wikidata / disabled OpenTripMap
+        -> normalized candidate + import batch
+        -> duplicate and licence review
+        -> explicit ADMIN approval
+        -> destination + source reference (one transaction)
+        -> public PostgreSQL catalogue
+```
+
+Candidates, batches, and provenance are separate from public destinations.
+Provider credentials remain backend-only. Wikidata uses machine-readable SPARQL
+with a bounded result limit, timeout, User-Agent, and throttling. OpenTripMap is
+deliberately disabled pending a key and policy review. Google support is limited
+to a future external Place ID/linking boundary; reviews, ratings, photos, and
+large place payloads are not copied.
+
+## Cache-aware aggregation and map presentation
+
+Provider adapters normalize external facts before validation, duplicate/merge
+rules, private review, and persistence in PostgreSQL. PostgreSQL remains the
+stable catalogue/cache and TourVerse REST remains the only destination-data API
+used by clients. Public requests never call providers.
+
+Curated fields are editorially locked and outrank refresh data. External core
+facts expire after 30 days and coordinates use a 90-day policy; curated and
+development-seed rows do not expire through providers.
+
+Google Maps is presentation with platform-restricted client keys. Google Places
+is a backend-only bounded ADMIN match service that persists only a Place ID and
+minimal link/audit metadata. Raw Google payloads are not stored.

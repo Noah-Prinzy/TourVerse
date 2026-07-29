@@ -11,16 +11,21 @@ fun String.asBuildConfigString(): String =
 val physicalApiBaseUrl = providers
     .gradleProperty("tourverse.physicalApiUrl")
     .orElse(providers.environmentVariable("TOURVERSE_PHYSICAL_API_URL"))
-    .orElse("http://192.168.1.73:8080/")
+    .orElse("http://192.168.1.73:8081/")
 
 val productionApiBaseUrl = providers
     .gradleProperty("tourverse.productionApiUrl")
     .orElse(providers.environmentVariable("TOURVERSE_PRODUCTION_API_URL"))
     .orElse("")
 
+val androidGoogleMapsApiKey = providers
+    .gradleProperty("tourverse.androidGoogleMapsApiKey")
+    .orElse(providers.environmentVariable("TOURVERSE_ANDROID_GOOGLE_MAPS_API_KEY"))
+    .orElse("")
+
 android {
     namespace = "com.tourverse"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.tourverse"
@@ -28,6 +33,12 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+        manifestPlaceholders["googleMapsApiKey"] = androidGoogleMapsApiKey.get()
+        buildConfigField(
+            "boolean",
+            "GOOGLE_MAPS_CONFIGURED",
+            androidGoogleMapsApiKey.map { it.isNotBlank() }.get().toString()
+        )
     }
 
     flavorDimensions += "apiEnvironment"
@@ -40,7 +51,7 @@ android {
             buildConfigField(
                 "String",
                 "API_BASE_URL",
-                "http://127.0.0.1:8080/".asBuildConfigString()
+                "http://127.0.0.1:8081/".asBuildConfigString()
             )
         }
 
@@ -51,7 +62,7 @@ android {
             buildConfigField(
                 "String",
                 "API_BASE_URL",
-                "http://10.0.2.2:8080/".asBuildConfigString()
+                "http://10.0.2.2:8081/".asBuildConfigString()
             )
         }
 
@@ -114,6 +125,7 @@ dependencies {
 
     implementation("io.coil-kt.coil3:coil-compose:3.2.0")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.2.0")
+    implementation("com.google.maps.android:maps-compose:6.12.0")
 
     testImplementation(kotlin("test-junit"))
     testImplementation("io.ktor:ktor-client-mock:3.1.2")

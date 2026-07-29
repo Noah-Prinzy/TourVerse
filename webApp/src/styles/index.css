@@ -33,6 +33,32 @@ select {
   font: inherit;
 }
 
+.destination-map-section {
+  margin: 1.5rem 0;
+}
+
+.destination-map,
+.map-fallback {
+  width: 100%;
+  min-height: 320px;
+  margin-bottom: 0.75rem;
+  border-radius: 12px;
+}
+
+.map-fallback {
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: #eef2ed;
+  color: #33443a;
+  text-align: center;
+}
+
+.attribution {
+  font-size: 0.875rem;
+  color: #52635a;
+}
+
 .site-header {
   min-height: 72px;
   display: flex;

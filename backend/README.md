@@ -101,7 +101,10 @@ Runtime and security variables:
 | `TOURVERSE_ENV` | Set to `production` to enable strict startup checks |
 | `TOURVERSE_ALLOWED_ORIGINS` | Comma-separated CORS origins |
 | `TOURVERSE_RATE_LIMIT_PER_MINUTE` | Per-client limit; defaults to 120 |
-| `PORT` | Overrides the default server port 8080 |
+| `PORT` | Overrides the default server port 8081 |
+| `TOURVERSE_INCLUDE_DEVELOPMENT_SEED_DATA` | Includes development seeds; defaults off in production |
+| `TOURVERSE_OPENTRIPMAP_API_KEY` | Optional backend-only key; provider remains policy-disabled |
+| `TOURVERSE_GOOGLE_PLACES_API_KEY` | Optional backend-only key for bounded ADMIN Place ID linking |
 
 Development permits a local fallback JWT secret and, when no origins are
 configured, allows any CORS host. Production requires a non-placeholder JWT
@@ -122,10 +125,10 @@ Then run:
 Default URLs:
 
 ```text
-API:      http://localhost:8080
-Health:   http://localhost:8080/api/health
-Docs:     http://localhost:8080/api/docs
-OpenAPI:  http://localhost:8080/api/openapi.yaml
+API:      http://localhost:8081
+Health:   http://localhost:8081/api/health
+Docs:     http://localhost:8081/api/docs
+OpenAPI:  http://localhost:8081/api/openapi.yaml
 ```
 
 Flyway validates and applies migrations during startup. Migration files already
@@ -149,6 +152,8 @@ Current migrations:
 | V10 | Bookings |
 | V11 | Notifications |
 | V12 | Administration/query indexes |
+| V13 | Global catalogue candidates, country codes, and source references |
+| V14 | Cache metadata, enriched source references, and field provenance |
 
 ## Authentication and authorization
 
@@ -405,3 +410,49 @@ The Android and web clients now consume this backend's paginated UUID-based
 destination contract, including nullable destination fields, backend
 timestamps, pagination metadata, search and filter parameters, sorting, and
 standard `ApiMessage` error responses.
+
+## Global destination catalogue
+
+Flyway migration `V13__global_destination_catalogue.sql` adds nullable ISO
+country codes, import batches, review candidates, source references, indexes,
+constraints, and missing global category seeds. Applied migrations remain
+immutable. Legacy country values are backfilled only for explicitly mapped
+names; unresolved rows retain `NULL` for manual correction.
+
+Wikidata is the first enabled structured provider. Provider requests are
+backend-only, bounded to 100 results, timed out, throttled, and stored as
+unpublished candidates. OpenTripMap needs
+`TOURVERSE_OPENTRIPMAP_API_KEY` plus a completed terms/attribution review and is
+currently disabled even when configured. The Google variable is reserved for a
+future policy-compliant Place ID boundary; no Google content import exists.
+
+Use the authenticated web route `/admin/destination-imports` for an intentional
+small development import. Review category mapping, duplicate warnings,
+description provenance, and image licence/attribution before approval. Reject
+bad candidates or link duplicates to an existing destination. Normal startup
+never imports or publishes external data, and automated tests use fixtures
+rather than live providers.
+
+The existing `scripts/seed-development-data.sql` is an explicit Uganda-focused
+local fixture, not the global catalogue or a production startup seed. The
+150–300 item multi-country demonstration catalogue remains an operator-driven
+task after small live imports, provider policy review, and database backup.
+
+## Cache-aware catalogue and maps
+
+PostgreSQL is the normalized catalogue and verification/cache layer. Public
+requests never wait for an external provider. External core facts use a 30-day
+expiry and coordinates a 90-day policy boundary; curated and development-seed
+rows are not provider-expiring. Stale rows remain readable and can be marked
+for controlled refresh. Administrator edits outrank provider data and are
+editorially locked.
+
+ADMIN catalogue routes under `/api/admin/catalogue` reuse the existing audited
+import batches and private candidate review. They provide bounded sync,
+country sync, refresh marking, job history, stale rows, and source references.
+
+Google Maps is client presentation. Google Places is separate: ADMIN search is
+bounded to five and biased around approved coordinates. Only a selected Place
+ID, Maps URI, attribution, timestamps, and active link are persisted. Raw
+responses, descriptions, ratings, reviews, hours, photos, and phone numbers are
+not stored. With no key, search returns `PROVIDER_NOT_CONFIGURED`.

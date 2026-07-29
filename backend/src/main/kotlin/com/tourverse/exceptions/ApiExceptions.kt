@@ -5,3 +5,4 @@ class UnauthorizedException(message: String = "Authentication required") : ApiEx
 class ForbiddenException(message: String = "You do not have permission to perform this action") : ApiException(message)
 class NotFoundException(message: String) : ApiException(message)
 class ConflictException(message: String) : ApiException(message)
+class ProviderNotConfiguredException(message: String) : ApiException(message)

@@ -8,6 +8,7 @@ import {
   isUuid, removeFavorite, updateReview,
 } from "../../services/communityApi";
 import { useAuth } from "../../state/AuthContext";
+import { DestinationMap } from "./DestinationMap";
 
 export function DestinationDetailsPage() {
   const { destinationId } = useParams();
@@ -64,6 +65,8 @@ export function DestinationDetailsPage() {
     <p className="location">{destination.city ? `${destination.city}, ` : ""}{destination.country}</p>
     <p>{destination.description}</p>
     {destination.latitude != null && destination.longitude != null && <p>Coordinates: {destination.latitude}, {destination.longitude}</p>}
+    {destination.attributionSummary && <p className="attribution">Sources: {destination.attributionSummary}</p>}
+    <DestinationMap destination={destination} />
     {user
       ? <button disabled={busy} onClick={toggleFavorite}>{favorite ? "Remove from favorites" : "Add to favorites"}</button>
       : <p><Link to="/login" state={{ from: `/destinations/${destination.id}` }}>Login to favorite or review this destination.</Link></p>}

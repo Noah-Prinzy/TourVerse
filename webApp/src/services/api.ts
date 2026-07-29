@@ -1,11 +1,12 @@
 import type {
   ApiMessage,
   DestinationQuery,
+  DestinationCountriesResponse,
   PagedDestinationResponse,
 } from "../models/Destination";
 
 const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080"
+  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8081"
 ).replace(/\/+$/, "");
 
 export function buildDestinationSearchParams(
@@ -22,6 +23,7 @@ export function buildDestinationSearchParams(
   const optionalParameters = {
     search: query.search,
     country: query.country,
+    countryCode: query.countryCode,
     city: query.city,
     category: query.category,
   };
@@ -38,6 +40,18 @@ export function buildDestinationSearchParams(
   parameters.set("sortBy", query.sortBy);
   parameters.set("sortDirection", query.sortDirection);
   return parameters;
+}
+
+export async function getDestinationCountries(
+  signal?: AbortSignal,
+): Promise<DestinationCountriesResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/destinations/countries`, { signal });
+  if (!response.ok) throw new Error(await readApiError(response));
+  try {
+    return (await response.json()) as DestinationCountriesResponse;
+  } catch {
+    throw new Error("TourVerse returned an invalid country response.");
+  }
 }
 
 async function readApiError(response: Response): Promise<string> {

@@ -7,6 +7,7 @@ import com.tourverse.data.model.Destination
 import com.tourverse.data.model.Category
 import com.tourverse.data.model.ReviewSummary
 import com.tourverse.data.model.PagedDestinationResponse
+import com.tourverse.data.model.DestinationCountriesResponse
 import io.ktor.client.call.body
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -36,6 +37,7 @@ class TourismApi(
             client.get("${baseUrl}api/destinations") {
                 query.search.trim().takeIf(String::isNotEmpty)?.let { parameter("search", it) }
                 query.country.trim().takeIf(String::isNotEmpty)?.let { parameter("country", it) }
+                query.countryCode.trim().takeIf(String::isNotEmpty)?.let { parameter("countryCode", it) }
                 query.city.trim().takeIf(String::isNotEmpty)?.let { parameter("city", it) }
                 query.category.trim().takeIf(String::isNotEmpty)?.let { parameter("category", it) }
                 parameter("page", query.page)
@@ -78,6 +80,9 @@ class TourismApi(
 
     suspend fun getDestination(id: String): Destination =
         getPublic("api/destinations/$id")
+
+    suspend fun getDestinationCountries(): DestinationCountriesResponse =
+        getPublic("api/destinations/countries")
 
     suspend fun getCategories(): List<Category> =
         getPublic("api/categories")

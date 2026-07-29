@@ -12,7 +12,7 @@ class DestinationQueryTest {
 
     @Test
     fun `default query uses first page and descending creation date`() {
-        val query = parseDestinationQuery(null, null, null, null, null, null, null, null)
+        val query = parseDestinationQuery(null, null, null, null, null, null, null, null, null)
 
         assertEquals(1, query.page)
         assertEquals(20, query.size)
@@ -25,6 +25,7 @@ class DestinationQueryTest {
         val query = parseDestinationQuery(
             search = "Nile",
             country = "Uganda",
+            countryCode = "UG",
             city = null,
             category = "Adventure",
             pageValue = "2",
@@ -43,7 +44,7 @@ class DestinationQueryTest {
     @Test
     fun `page below one is rejected`() {
         assertFailsWith<ValidationException> {
-            parseDestinationQuery(null, null, null, null, "0", "20", null, null)
+            parseDestinationQuery(null, null, null, null, null, "0", "20", null, null)
         }
     }
 }

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.tourverse.data.model.Destination
 import com.tourverse.data.model.DestinationQuery
 import com.tourverse.data.model.DestinationSortField
+import com.tourverse.data.model.DestinationCountry
 import com.tourverse.data.model.SortDirection
 import com.tourverse.data.repository.DestinationRepository
 import com.tourverse.data.remote.TourismApi
@@ -27,14 +28,17 @@ data class HomeUiState(
     val isLoading: Boolean = true,
     val isEmpty: Boolean = false,
     val errorMessage: String? = null,
-    val categories: List<String> = emptyList()
+    val categories: List<String> = emptyList(),
+    val countries: List<DestinationCountry> = emptyList(),
+    val countriesLoading: Boolean = true,
+    val countriesError: String? = null
 ) {
     val canGoPrevious: Boolean get() = !isLoading && currentPage > 1
     val canGoNext: Boolean get() = !isLoading && currentPage < totalPages
 
     fun query(): DestinationQuery = DestinationQuery(
         search = search,
-        country = country,
+        countryCode = country,
         city = city,
         category = category,
         page = currentPage.coerceAtLeast(1),
@@ -62,6 +66,7 @@ class HomeViewModel(
             runCatching { tourismApi.getCategories().map { it.name } }
                 .onSuccess { values -> _uiState.value = _uiState.value.copy(categories = values) }
         }
+        loadCountries()
     }
 
     fun retry() = loadDestinations()
@@ -78,6 +83,28 @@ class HomeViewModel(
     fun updateCountry(value: String) {
         _uiState.value = _uiState.value.copy(country = value, currentPage = 1)
         loadDestinations()
+    }
+
+    fun cycleCountry() {
+        val choices = listOf("") + _uiState.value.countries.map { it.code }
+        val current = choices.indexOf(_uiState.value.country).coerceAtLeast(0)
+        updateCountry(choices[(current + 1) % choices.size])
+    }
+
+    fun loadCountries() {
+        _uiState.value = _uiState.value.copy(countriesLoading = true, countriesError = null)
+        viewModelScope.launch {
+            runCatching { repository.getCountries().countries }
+                .onSuccess { values ->
+                    _uiState.value = _uiState.value.copy(countries = values, countriesLoading = false)
+                }
+                .onFailure {
+                    _uiState.value = _uiState.value.copy(
+                        countries = emptyList(), countriesLoading = false,
+                        countriesError = "Country filters are temporarily unavailable."
+                    )
+                }
+        }
     }
 
     fun updateCity(value: String) {

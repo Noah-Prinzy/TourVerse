@@ -14,6 +14,7 @@ import androidx.compose.foundation.background
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.ContentScale
 import coil3.compose.rememberAsyncImagePainter
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun DestinationDetailScreen(viewModel: DestinationDetailViewModel, authenticated: Boolean, userId: String?, onLogin: () -> Unit) {
@@ -22,12 +23,15 @@ fun DestinationDetailScreen(viewModel: DestinationDetailViewModel, authenticated
     val destination = state.destination
     if (destination == null) { MessageScreen(state.error ?: "Destination not found.", viewModel::load); return }
     var comment by remember { mutableStateOf("") }; var rating by remember { mutableStateOf("5") }
+    val context = LocalContext.current
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
             if (destination.coverImageUrl == null) Box(Modifier.fillMaxWidth().height(220.dp).background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) { Text("No image available") }
             else Image(rememberAsyncImagePainter(destination.coverImageUrl), destination.name, Modifier.fillMaxWidth().height(220.dp), contentScale = ContentScale.Crop)
             Text(destination.name, style = MaterialTheme.typography.headlineLarge); Text(destination.displayLocation); Text(destination.category); Text(destination.description)
             if (destination.latitude != null && destination.longitude != null) Text("Coordinates: ${destination.latitude}, ${destination.longitude}")
+            destination.attributionSummary?.let { Text("Sources: $it", style = MaterialTheme.typography.bodySmall) }
+            DestinationMap(destination) { openDestinationInGoogleMaps(context, destination) }
         }
         item {
             if (authenticated) Button(viewModel::toggleFavorite, enabled = !state.busy) { Text(if (state.favorite) "Remove favorite" else "Add favorite") }

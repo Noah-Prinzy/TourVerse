@@ -3,11 +3,13 @@ import type { DestinationQuery } from "../models/Destination";
 import {
   buildDestinationSearchParams,
   getDestinations,
+  getDestinationCountries,
 } from "./api";
 
 const query: DestinationQuery = {
   search: "mara & wildlife",
   country: "Kenya",
+  countryCode: "KE",
   city: "",
   category: "Wildlife",
   page: 2,
@@ -26,12 +28,19 @@ describe("destination API", () => {
 
     expect(parameters.get("search")).toBe("mara & wildlife");
     expect(parameters.get("country")).toBe("Kenya");
+    expect(parameters.get("countryCode")).toBe("KE");
     expect(parameters.has("city")).toBe(false);
     expect(parameters.get("category")).toBe("Wildlife");
     expect(parameters.get("page")).toBe("2");
     expect(parameters.get("size")).toBe("10");
     expect(parameters.get("sortBy")).toBe("name");
     expect(parameters.get("sortDirection")).toBe("asc");
+  });
+
+  it("loads backend-driven country options", async () => {
+    const response = { countries: [{ code: "KE", name: "Kenya", destinationCount: 12 }] };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify(response), { status: 200 })));
+    await expect(getDestinationCountries()).resolves.toEqual(response);
   });
 
   it("rejects impossible pagination before sending", () => {

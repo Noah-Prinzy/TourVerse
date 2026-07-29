@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 data class CreateDestinationRequest(
     val name: String,
     val country: String,
+    val countryCode: String? = null,
     val city: String? = null,
     val description: String,
     val category: String,

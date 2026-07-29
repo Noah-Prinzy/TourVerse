@@ -11,6 +11,7 @@ object DestinationValidator {
         validateFields(
             name = request.name,
             country = request.country,
+            countryCode = request.countryCode,
             city = request.city,
             description = request.description,
             category = request.category,
@@ -24,6 +25,7 @@ object DestinationValidator {
         validateFields(
             name = request.name,
             country = request.country,
+            countryCode = request.countryCode,
             city = request.city,
             description = request.description,
             category = request.category,
@@ -36,6 +38,7 @@ object DestinationValidator {
     private fun validateFields(
         name: String,
         country: String,
+        countryCode: String?,
         city: String?,
         description: String,
         category: String,
@@ -45,6 +48,7 @@ object DestinationValidator {
     ) {
         requireText(name, "Destination name", 150)
         requireText(country, "Country", 100)
+        CountryCodeService.normalizeCode(countryCode)
         optionalText(city, "City", 100)
         requireText(description, "Description", 5_000)
         requireText(category, "Category", 80)

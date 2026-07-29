@@ -13,6 +13,7 @@ export function AppShell() {
           <NavLink to="/profile">Profile</NavLink>
           <NavLink to="/favorites">Favorites</NavLink>
           <NavLink to="/trips">My trips</NavLink>
+          {user.role === "ADMIN" && <NavLink to="/admin/destination-imports">Catalogue admin</NavLink>}
           <button className="nav-button" onClick={() => logout().finally(() => navigate("/login"))}>Logout</button>
         </> : <>
           <NavLink to="/login">Login</NavLink>

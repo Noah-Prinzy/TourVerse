@@ -3,6 +3,7 @@ package com.tourverse
 import com.tourverse.dto.PagedDestinationResponse
 import com.tourverse.models.CreateDestinationRequest
 import com.tourverse.models.Destination
+import com.tourverse.models.DestinationCountry
 import com.tourverse.models.DestinationQuery
 import com.tourverse.models.UpdateDestinationRequest
 import com.tourverse.plugins.configureSerialization
@@ -46,6 +47,7 @@ class DestinationAuthorizationTest {
     @Test
     fun `anonymous reads remain public`() = withRoutes { repository ->
         assertEquals(HttpStatusCode.OK, client.get("/api/destinations").status)
+        assertEquals(HttpStatusCode.OK, client.get("/api/destinations/countries").status)
         assertEquals(HttpStatusCode.OK, client.get("/api/destinations/$destinationId").status)
         assertEquals(2, repository.readCount)
     }
@@ -129,6 +131,9 @@ private class FakeDestinationRepository(private val destinationId: UUID) : Desti
         readCount++
         return destination.takeIf { id == destinationId }
     }
+
+    override suspend fun getCountries(): List<DestinationCountry> =
+        listOf(DestinationCountry("UG", "Uganda", 1))
 
     override suspend fun create(request: CreateDestinationRequest): Destination {
         writeCount++

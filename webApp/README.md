@@ -95,17 +95,20 @@ http://localhost:5173
 The API defaults to:
 
 ```text
-http://localhost:8080
+http://localhost:8081
 ```
 
 Override it with a local untracked environment file:
 
 ```dotenv
-VITE_API_BASE_URL=http://localhost:8080
+VITE_API_BASE_URL=http://localhost:8081
+VITE_GOOGLE_MAPS_API_KEY=
 ```
 
 Vite exposes `VITE_` variables to browser code. Never place passwords, private
 API keys, JWT signing secrets, or other server secrets in these variables.
+The Maps key is browser-visible by design; restrict it by HTTP referrer and to
+the Maps JavaScript API. Never reuse the backend Places key.
 
 ## Build and preview
 
@@ -136,7 +139,7 @@ errors.
 The page includes:
 
 - A white header with TourVerse branding and anchor navigation
-- A Uganda-focused hero with an externally hosted background image
+- A global-destination hero with an externally hosted background image
 - A featured-destinations section with search/filter/sort controls
 - Destination cards with image fallback, category, name, city/country,
   description, and action button
@@ -179,3 +182,21 @@ location from nullable city and country and no longer invent a rating.
   would reduce XSS exposure.
 - Services, bookings, notifications, and full role-specific portals are not yet
   exposed.
+
+## Catalogue administration
+
+Public country choices are loaded from approved backend destination counts and
+filter by ISO code. A signed-in `ADMIN` receives a Catalogue admin link to
+`/admin/destination-imports`, where bounded provider searches create unverified
+review candidates. Candidate approval is explicit and surfaces source,
+duplicate, category, and image-licensing concerns. Provider keys are never sent
+to or configured in Vite.
+
+## Destination maps
+
+Destination details render one Google marker only when coordinates are valid
+and `VITE_GOOGLE_MAPS_API_KEY` is configured. A shared loader prevents duplicate
+script injection. Missing keys, coordinates, invalid coordinates, and script
+failure preserve the detail page and show a clear fallback. “Open in Google
+Maps” uses an encoded URL and optional linked Place ID. React never calls
+Wikidata, OpenTripMap, or Google Places for destination data.

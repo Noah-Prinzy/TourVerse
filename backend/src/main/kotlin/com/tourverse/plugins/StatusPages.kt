@@ -33,6 +33,12 @@ fun Application.configureStatusPages() {
         exception<ConflictException> { call, cause ->
             call.respond(HttpStatusCode.Conflict, ApiMessage("error", cause.message ?: "Conflict"))
         }
+        exception<ProviderNotConfiguredException> { call, cause ->
+            call.respond(HttpStatusCode.ServiceUnavailable, ApiMessage(
+                "PROVIDER_NOT_CONFIGURED",
+                cause.message ?: "Provider is not configured."
+            ))
+        }
         exception<Throwable> { call, cause ->
             this@configureStatusPages.log.error("Unhandled server error", cause)
             call.respond(HttpStatusCode.InternalServerError, ApiMessage("error", "An unexpected server error occurred."))

@@ -32,7 +32,7 @@ It currently:
 | Language | Kotlin 2.1.20 |
 | UI | Jetpack Compose and Material 3 |
 | Android Gradle Plugin | 8.13.2 |
-| Compile/target SDK | 35 |
+| Compile/target SDK | 36 / 35 |
 | Minimum SDK | 26 |
 | Java/Kotlin target | 21 |
 | HTTP | Ktor Client 3.1.2 with OkHttp |
@@ -90,8 +90,8 @@ and refuses to run when a production URL is missing.
 
 | Flavor | Generated `BuildConfig.API_BASE_URL` | Use |
 | --- | --- | --- |
-| `development` | `http://127.0.0.1:8080/` | Device connected through `adb reverse` |
-| `emulator` | `http://10.0.2.2:8080/` | Android emulator reaching the host |
+| `development` | `http://127.0.0.1:8081/` | Device connected through `adb reverse` |
+| `emulator` | `http://10.0.2.2:8081/` | Android emulator reaching the host |
 | `physical` | Configurable; currently defaults to a LAN URL | Phone and backend on the same LAN |
 | `production` | Required external value; defaults to empty | Deployed HTTPS API |
 
@@ -103,12 +103,12 @@ they can coexist on a device.
 Start the backend, connect and authorize the device, then run:
 
 ```powershell
-adb reverse tcp:8080 tcp:8080
+adb reverse tcp:8081 tcp:8081
 adb reverse --list
 .\gradlew.bat :app:installDevelopmentDebug
 ```
 
-The development build calls `127.0.0.1:8080` on the device; the reverse-port
+The development build calls `127.0.0.1:8081` on the device; the reverse-port
 rule forwards that traffic to the computer.
 
 ### Android emulator
@@ -130,7 +130,7 @@ time:
 
 ```powershell
 .\gradlew.bat :app:installPhysicalDebug `
-  "-Ptourverse.physicalApiUrl=http://192.168.1.25:8080/"
+  "-Ptourverse.physicalApiUrl=http://192.168.1.25:8081/"
 ```
 
 The equivalent environment variable is:
@@ -207,6 +207,9 @@ The Android DTO now matches the backend's string UUID, country, nullable city,
 nullable coordinates, nullable cover URL, and timestamp fields.
 `TourismApi.getDestinations` returns `PagedDestinationResponse` and safely adds
 the backend's search, filter, page, size, and sort parameters through Ktor.
+Country choices and counts come from `/api/destinations/countries`; selection
+uses the ISO code and resets pagination. A failed country-options request has a
+separate retry state and does not prevent ordinary destination browsing.
 
 Non-success responses are decoded as `ApiMessage` when possible. Empty or
 malformed error bodies use a stable HTTP-status fallback. Retry repeats the
@@ -221,3 +224,17 @@ active query.
 - API base URLs are build-time values rather than runtime settings.
 - Services, bookings, notifications, and full role-specific portals are not yet
   exposed.
+- Catalogue import administration is intentionally web-only in this batch.
+
+## Destination maps
+
+Destination details use Maps Compose for one marker when coordinates are valid
+and a key is configured. Supply it through the ignored Gradle property
+`tourverse.androidGoogleMapsApiKey` or environment variable
+`TOURVERSE_ANDROID_GOOGLE_MAPS_API_KEY`; a manifest placeholder receives it.
+Restrict the key by package name, signing-certificate SHA fingerprint, and Maps
+SDK for Android.
+
+All variants compile without a key. Missing keys or coordinates preserve the
+details and show a fallback. “Open in Google Maps” uses an encoded geo URI with
+an HTTPS browser fallback. Android never calls external destination providers.

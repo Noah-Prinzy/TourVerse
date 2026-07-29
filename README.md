@@ -54,6 +54,12 @@ The clients call HTTP/JSON endpoints. Ktor routes delegate to services, which
 perform validation and use Exposed/PostgreSQL. Flyway applies the database
 schema at backend startup.
 
+External discovery remains backend-only: provider adapters feed normalization,
+validation, duplicate review, and the PostgreSQL catalogue/cache. Android and
+web continue to use only the TourVerse REST API. Google Maps renders approved
+TourVerse coordinates; Google Places is a separate optional ADMIN-only Place
+ID linking service, not a permanent bulk destination database.
+
 ## Quick start
 
 ### 1. Start PostgreSQL
@@ -79,10 +85,10 @@ secret. Never commit it.
 Default backend URLs:
 
 ```text
-API:      http://localhost:8080
-Health:   http://localhost:8080/api/health
-Docs:     http://localhost:8080/api/docs
-OpenAPI:  http://localhost:8080/api/openapi.yaml
+API:      http://localhost:8081
+Health:   http://localhost:8081/api/health
+Docs:     http://localhost:8081/api/docs
+OpenAPI:  http://localhost:8081/api/openapi.yaml
 ```
 
 If Flyway reports a checksum mismatch, an applied migration differs from the
@@ -100,7 +106,9 @@ npm.cmd run dev
 ```
 
 Vite runs at `http://localhost:5173`. Set `VITE_API_BASE_URL` in a local
-untracked `.env` to override `http://localhost:8080`.
+untracked `.env` to override `http://localhost:8081`.
+Set `VITE_GOOGLE_MAPS_API_KEY` only in that untracked file and restrict it by
+HTTP referrer and to the Maps JavaScript API.
 
 ### 4. Run the Android application
 
@@ -108,8 +116,8 @@ Open `androidApp` in Android Studio or select a variant from PowerShell:
 
 | Variant | Backend address |
 | --- | --- |
-| `developmentDebug` | `127.0.0.1:8080` through `adb reverse` |
-| `emulatorDebug` | `10.0.2.2:8080` |
+| `developmentDebug` | `127.0.0.1:8081` through `adb reverse` |
+| `emulatorDebug` | `10.0.2.2:8081` |
 | `physicalDebug` | Build-time LAN URL |
 | `productionRelease` | Build-time HTTPS URL |
 
@@ -117,7 +125,7 @@ Connected device:
 
 ```powershell
 Set-Location androidApp
-adb reverse tcp:8080 tcp:8080
+adb reverse tcp:8081 tcp:8081
 .\gradlew.bat :app:installDevelopmentDebug
 ```
 
@@ -131,7 +139,7 @@ Physical device on the same network:
 
 ```powershell
 .\gradlew.bat :app:installPhysicalDebug `
-  "-Ptourverse.physicalApiUrl=http://192.168.1.25:8080/"
+  "-Ptourverse.physicalApiUrl=http://192.168.1.25:8081/"
 ```
 
 Production:
@@ -140,6 +148,12 @@ Production:
 .\gradlew.bat :app:assembleProductionRelease `
   "-Ptourverse.productionApiUrl=https://api.example.com/"
 ```
+
+For Android maps, supply the ignored Gradle property
+`tourverse.androidGoogleMapsApiKey` or
+`TOURVERSE_ANDROID_GOOGLE_MAPS_API_KEY`. Restrict it by application package,
+signing-certificate SHA fingerprint, and Maps SDK for Android. Keyless builds
+show a map-unavailable fallback.
 
 ## Verification
 
@@ -191,3 +205,8 @@ require external services and operational configuration.
 The next frontend priorities are live browser/device validation and incremental
 UI coverage for tourism services, bookings, notifications, and role-specific
 administration/business-owner workflows.
+
+TourVerse destination discovery is global. Approved PostgreSQL destinations are
+the public source of truth; backend-only provider imports enter an administrator
+review queue with country normalization, duplicate checks, provenance, and
+explicit transactional approval.

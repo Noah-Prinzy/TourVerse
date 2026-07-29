@@ -3,11 +3,13 @@ package com.tourverse.routes
 import com.tourverse.dto.ApiMessage
 import com.tourverse.models.CreateDestinationRequest
 import com.tourverse.models.DestinationQuery
+import com.tourverse.models.DestinationCountriesResponse
 import com.tourverse.models.DestinationSortField
 import com.tourverse.models.SortDirection
 import com.tourverse.models.UpdateDestinationRequest
 import com.tourverse.security.authenticatedUser
 import com.tourverse.services.DestinationService
+import com.tourverse.services.CountryCodeService
 import com.tourverse.utils.ValidationException
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
@@ -26,6 +28,7 @@ fun Route.destinationRoutes(service: DestinationService) {
             val query = parseDestinationQuery(
                 search = call.request.queryParameters["search"],
                 country = call.request.queryParameters["country"],
+                countryCode = call.request.queryParameters["countryCode"],
                 city = call.request.queryParameters["city"],
                 category = call.request.queryParameters["category"],
                 pageValue = call.request.queryParameters["page"],
@@ -34,6 +37,10 @@ fun Route.destinationRoutes(service: DestinationService) {
                 sortDirectionValue = call.request.queryParameters["sortDirection"]
             )
             call.respond(service.getAllDestinations(query))
+        }
+
+        get("/countries") {
+            call.respond(DestinationCountriesResponse(service.getCountries()))
         }
 
         get("/{id}") {
@@ -105,6 +112,7 @@ internal fun parseUuid(value: String?): UUID {
 internal fun parseDestinationQuery(
     search: String?,
     country: String?,
+    countryCode: String?,
     city: String?,
     category: String?,
     pageValue: String?,
@@ -143,6 +151,7 @@ internal fun parseDestinationQuery(
     return DestinationQuery(
         search = search,
         country = country,
+        countryCode = countryCode?.let(CountryCodeService::normalizeCode),
         city = city,
         category = category,
         page = page,
