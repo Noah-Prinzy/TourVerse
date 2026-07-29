@@ -5,7 +5,7 @@ localResources:
   specs:
     - ../backend/src/main/resources/openapi/tourverse-openapi.yaml
     - ../postman/specs/TourVerse API/openapi.yaml
-    - ../C:/Users/Noah/Desktop/Kotlin Projects/TourVerse/webApp/package.json
+    - ../frontend/webApp/package.json
 resourceNameMappings:
   specs:
     - ../postman/specs/TourVerse API/openapi.yaml: TourVerse API

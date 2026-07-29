@@ -25,10 +25,11 @@ successful client builds and unit tests.
 
 ```text
 TourVerse/
-|-- androidApp/   Android application and its authoritative README
 |-- backend/      Ktor API, PostgreSQL migrations, tests, and README
 |-- docs/         Cross-project architecture, API contract, and project tree
-|-- webApp/       React application and its authoritative README
+|-- frontend/
+|   |-- androidApp/   Native Android application and README
+|   `-- webApp/       React application and README
 |-- .gitignore
 `-- README.md
 ```
@@ -36,8 +37,9 @@ TourVerse/
 Detailed guides:
 
 - [Backend guide](backend/README.md)
-- [Android guide](androidApp/README.md)
-- [Web guide](webApp/README.md)
+- [Frontend overview](frontend/README.md)
+- [Android guide](frontend/androidApp/README.md)
+- [Web guide](frontend/webApp/README.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [API contract](docs/API_CONTRACT.md)
 - [Production deployment runbook](deploy/README.md)
@@ -101,7 +103,7 @@ than automatically repairing it.
 In another terminal:
 
 ```powershell
-Set-Location webApp
+Set-Location frontend/webApp
 npm.cmd install
 npm.cmd run dev
 ```
@@ -113,7 +115,8 @@ HTTP referrer and to the Maps JavaScript API.
 
 ### 4. Run the Android application
 
-Open `androidApp` in Android Studio or select a variant from PowerShell:
+Open `frontend/androidApp` in Android Studio or select a variant from
+PowerShell:
 
 | Variant | Backend address |
 | --- | --- |
@@ -125,7 +128,7 @@ Open `androidApp` in Android Studio or select a variant from PowerShell:
 Connected device:
 
 ```powershell
-Set-Location androidApp
+Set-Location frontend/androidApp
 adb reverse tcp:8081 tcp:8081
 .\gradlew.bat :app:installDevelopmentDebug
 ```
@@ -168,7 +171,7 @@ Set-Location backend
 Android:
 
 ```powershell
-Set-Location androidApp
+Set-Location frontend/androidApp
 .\gradlew.bat :app:assembleDevelopmentDebug
 .\gradlew.bat :app:assembleEmulatorDebug
 .\gradlew.bat :app:assemblePhysicalDebug
@@ -177,7 +180,7 @@ Set-Location androidApp
 Web:
 
 ```powershell
-Set-Location webApp
+Set-Location frontend/webApp
 npm.cmd run build
 ```
 

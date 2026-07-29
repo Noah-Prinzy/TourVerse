@@ -6,7 +6,7 @@ I have updated the IP address used by the `physical` build flavor to match your 
 
 ### [app]
 
-#### [build.gradle.kts](file:///C:/Users/Noah/Desktop/Kotlin Projects/TourVerse/androidApp/app/build.gradle.kts)
+#### [build.gradle.kts](file:///C:/Users/Noah/Desktop/Kotlin Projects/TourVerse/frontend/androidApp/app/build.gradle.kts)
 Updated the `physicalApiBaseUrl` from `192.168.0.150` to `192.168.1.73`.
 
 ## Verification Results

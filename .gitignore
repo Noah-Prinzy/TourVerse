@@ -28,7 +28,8 @@ dist/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+*.tsbuildinfo
 
 # Environment files
 backend/.env
-webApp/.env
+frontend/webApp/.env

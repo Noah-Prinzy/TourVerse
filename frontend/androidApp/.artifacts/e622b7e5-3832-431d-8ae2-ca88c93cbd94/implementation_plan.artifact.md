@@ -6,7 +6,7 @@ The "Unable to connect" error is caused by your computer's local IP address chan
 
 ### [app]
 
-#### [MODIFY] [build.gradle.kts](file:///C:/Users/Noah/Desktop/Kotlin Projects/TourVerse/androidApp/app/build.gradle.kts)
+#### [MODIFY] [build.gradle.kts](file:///C:/Users/Noah/Desktop/Kotlin Projects/TourVerse/frontend/androidApp/app/build.gradle.kts)
 - Update the default value for `physicalApiBaseUrl` to use the current IP: `http://192.168.1.73:8080/`.
 
 ## Verification Plan

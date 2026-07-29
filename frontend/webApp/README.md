@@ -1,7 +1,7 @@
 # TourVerse Web Application
 
 This is the authoritative guide to the React client currently implemented in
-`webApp`.
+`frontend/webApp`.
 
 ## Current implementation
 
@@ -39,7 +39,7 @@ client-side persistence dependency.
 ## Source organization
 
 ```text
-webApp/
+frontend/webApp/
 |-- src/
 |   |-- components/DestinationCard.tsx
 |   |-- models/Destination.ts
@@ -195,7 +195,7 @@ to or configured in Vite.
 ## Production container
 
 Set `VITE_API_BASE_URL` to the deployed HTTPS API origin before a standalone
-build. The provider-neutral deployment in `../deploy` serves the web app and
+build. The provider-neutral deployment in `../../deploy` serves the web app and
 API from the same origin, so its container uses relative `/api` requests.
 Restrict `VITE_GOOGLE_MAPS_API_KEY` to the exact production HTTPS origin.
 

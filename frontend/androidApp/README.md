@@ -1,7 +1,7 @@
 # TourVerse Android Application
 
 This is the authoritative guide to the Android client currently implemented in
-`androidApp`.
+`frontend/androidApp`.
 
 ## Current implementation
 
@@ -161,8 +161,8 @@ Use an HTTPS URL. A production build with an empty value compiles, but
 
 ## Build and run
 
-Open `androidApp` as the project in Android Studio and select the needed build
-variant, or use PowerShell:
+Open `frontend/androidApp` as the project in Android Studio and select the
+needed build variant, or use PowerShell:
 
 ```powershell
 .\gradlew.bat :app:assembleDevelopmentDebug

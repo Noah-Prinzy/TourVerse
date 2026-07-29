@@ -59,8 +59,9 @@ The repository was divided into independent application folders:
 ```text
 TourVerse/
 |-- backend/       Kotlin/Ktor API and Flyway migrations
-|-- androidApp/    Native Android application
-|-- webApp/        React browser application
+|-- frontend/
+|   |-- androidApp/   Native Android application
+|   `-- webApp/       React browser application
 |-- docs/          Cross-project documentation
 |-- postman/       API specifications and request collection
 |-- deploy/        HTTPS Docker deployment and operations runbook
@@ -1361,6 +1362,11 @@ The commit labels `Phase 1` through `Phase 5` were kept as they appear in Git.
 The explanations below give those otherwise short commit messages their
 technical meaning.
 
+The original commits stored the clients at root-level paths named
+`androidApp/` and `webApp/`. The file tables below use their current locations,
+`frontend/androidApp/` and `frontend/webApp/`, after the later frontend-folder
+consolidation. Git history still records the original paths accurately.
+
 ### Recorded phase 0 — Initial TourVerse project structure
 
 **Git evidence:** `b04fd97`, “Initial TourVerse project structure”.
@@ -1379,8 +1385,8 @@ authentication were introduced.
 | `docs/API_CONTRACT.md` | Added | First written agreement between clients and backend. |
 | `docs/PROJECT_TREE.txt` | Added | Human-readable inventory of source files. |
 | `backend/README.md` | Added | Backend-specific structure and startup notes. |
-| `androidApp/README.md` | Added | Android setup and implementation notes. |
-| `webApp/README.md` | Added | Web setup and implementation notes. |
+| `frontend/androidApp/README.md` | Added | Android setup and implementation notes. |
+| `frontend/webApp/README.md` | Added | Web setup and implementation notes. |
 
 #### Initial backend files
 
@@ -1412,21 +1418,21 @@ later replaced by real source files.
 
 | File | Change | What it held at this stage |
 |---|---|---|
-| `androidApp/build.gradle.kts` | Added | Root Android plugin configuration. |
-| `androidApp/settings.gradle.kts` | Added | Android modules and dependency repositories. |
-| `androidApp/gradle.properties` | Added | Gradle and Android build properties. |
-| `androidApp/app/build.gradle.kts` | Added | Application ID, SDK values, Compose configuration, and dependencies. |
-| `androidApp/app/src/main/AndroidManifest.xml` | Added | Internet permission, application metadata, and launcher activity. |
-| `androidApp/app/src/main/kotlin/com/tourverse/MainActivity.kt` | Added | Android launcher activity and Compose content root. |
-| `androidApp/app/src/main/kotlin/com/tourverse/data/model/Destination.kt` | Added | Initial Android destination DTO. |
-| `androidApp/app/src/main/kotlin/com/tourverse/data/remote/ApiClient.kt` | Added | Android Ktor Client construction. |
-| `androidApp/app/src/main/kotlin/com/tourverse/data/remote/TourismApi.kt` | Added | Initial typed destination API calls. |
-| `androidApp/app/src/main/kotlin/com/tourverse/data/repository/DestinationRepository.kt` | Added | Android data layer between API and ViewModel. |
-| `androidApp/app/src/main/kotlin/com/tourverse/ui/screens/HomeViewModel.kt` | Added | Destination loading and home-screen state. |
-| `androidApp/app/src/main/kotlin/com/tourverse/ui/screens/HomeScreen.kt` | Added | First mobile catalogue presentation. |
-| `androidApp/app/src/main/kotlin/com/tourverse/ui/theme/Theme.kt` | Added | Compose application theme. |
-| `androidApp/app/src/main/res/values/strings.xml` | Added | Android string resources. |
-| `androidApp/app/src/main/res/values/styles.xml` | Added | Android application theme resources. |
+| `frontend/androidApp/build.gradle.kts` | Added | Root Android plugin configuration. |
+| `frontend/androidApp/settings.gradle.kts` | Added | Android modules and dependency repositories. |
+| `frontend/androidApp/gradle.properties` | Added | Gradle and Android build properties. |
+| `frontend/androidApp/app/build.gradle.kts` | Added | Application ID, SDK values, Compose configuration, and dependencies. |
+| `frontend/androidApp/app/src/main/AndroidManifest.xml` | Added | Internet permission, application metadata, and launcher activity. |
+| `frontend/androidApp/app/src/main/kotlin/com/tourverse/MainActivity.kt` | Added | Android launcher activity and Compose content root. |
+| `frontend/androidApp/app/src/main/kotlin/com/tourverse/data/model/Destination.kt` | Added | Initial Android destination DTO. |
+| `frontend/androidApp/app/src/main/kotlin/com/tourverse/data/remote/ApiClient.kt` | Added | Android Ktor Client construction. |
+| `frontend/androidApp/app/src/main/kotlin/com/tourverse/data/remote/TourismApi.kt` | Added | Initial typed destination API calls. |
+| `frontend/androidApp/app/src/main/kotlin/com/tourverse/data/repository/DestinationRepository.kt` | Added | Android data layer between API and ViewModel. |
+| `frontend/androidApp/app/src/main/kotlin/com/tourverse/ui/screens/HomeViewModel.kt` | Added | Destination loading and home-screen state. |
+| `frontend/androidApp/app/src/main/kotlin/com/tourverse/ui/screens/HomeScreen.kt` | Added | First mobile catalogue presentation. |
+| `frontend/androidApp/app/src/main/kotlin/com/tourverse/ui/theme/Theme.kt` | Added | Compose application theme. |
+| `frontend/androidApp/app/src/main/res/values/strings.xml` | Added | Android string resources. |
+| `frontend/androidApp/app/src/main/res/values/styles.xml` | Added | Android application theme resources. |
 
 Empty `.gitkeep` files also reserved Android component, navigation, hook, page,
 utility, and platform directories before those layers were implemented.
@@ -1435,19 +1441,19 @@ utility, and platform directories before those layers were implemented.
 
 | File | Change | What it held at this stage |
 |---|---|---|
-| `webApp/package.json` | Added | React, TypeScript, Vite, and project scripts. |
-| `webApp/index.html` | Added | Browser document and React mount element. |
-| `webApp/vite.config.ts` | Added | Vite and React build integration. |
-| `webApp/tsconfig.json` | Added | Root TypeScript project references. |
-| `webApp/tsconfig.app.json` | Added | Browser application compiler rules. |
-| `webApp/tsconfig.node.json` | Added | Vite configuration compiler rules. |
-| `webApp/.env.example` | Added | Example browser API base URL. |
-| `webApp/src/main.tsx` | Added | React application entry point. |
-| `webApp/src/App.tsx` | Added | Initial application component and destination loading. |
-| `webApp/src/models/Destination.ts` | Added | Initial TypeScript destination interface. |
-| `webApp/src/services/api.ts` | Added | Initial destination fetch function. |
-| `webApp/src/components/DestinationCard.tsx` | Added | Reusable destination summary card. |
-| `webApp/src/styles/index.css` | Added | Initial global and destination-card styling. |
+| `frontend/webApp/package.json` | Added | React, TypeScript, Vite, and project scripts. |
+| `frontend/webApp/index.html` | Added | Browser document and React mount element. |
+| `frontend/webApp/vite.config.ts` | Added | Vite and React build integration. |
+| `frontend/webApp/tsconfig.json` | Added | Root TypeScript project references. |
+| `frontend/webApp/tsconfig.app.json` | Added | Browser application compiler rules. |
+| `frontend/webApp/tsconfig.node.json` | Added | Vite configuration compiler rules. |
+| `frontend/webApp/.env.example` | Added | Example browser API base URL. |
+| `frontend/webApp/src/main.tsx` | Added | React application entry point. |
+| `frontend/webApp/src/App.tsx` | Added | Initial application component and destination loading. |
+| `frontend/webApp/src/models/Destination.ts` | Added | Initial TypeScript destination interface. |
+| `frontend/webApp/src/services/api.ts` | Added | Initial destination fetch function. |
+| `frontend/webApp/src/components/DestinationCard.tsx` | Added | Reusable destination summary card. |
+| `frontend/webApp/src/styles/index.css` | Added | Initial global and destination-card styling. |
 
 ### Recorded phase 1 — Planning artifacts
 
@@ -1458,9 +1464,9 @@ Android planning and implementation-assistance material.
 
 | File | Change | What it held at this stage |
 |---|---|---|
-| `androidApp/.artifacts/.../implementation_plan.artifact.md` | Added | Proposed Android implementation order. |
-| `androidApp/.artifacts/.../task.artifact.md` | Added | The scoped Android task description. |
-| `androidApp/.artifacts/.../walkthrough.artifact.md` | Added | A generated walkthrough of the intended work. |
+| `frontend/androidApp/.artifacts/.../implementation_plan.artifact.md` | Added | Proposed Android implementation order. |
+| `frontend/androidApp/.artifacts/.../task.artifact.md` | Added | The scoped Android task description. |
+| `frontend/androidApp/.artifacts/.../walkthrough.artifact.md` | Added | A generated walkthrough of the intended work. |
 
 These artifacts are historical development aids. Runtime behavior comes from
 the application source, not from the artifact documents.
@@ -1487,14 +1493,14 @@ locking, and stronger project configuration.
 | `backend/src/main/kotlin/com/tourverse/plugins/Serialization.kt` | Modified | Expanded JSON configuration for typed models. |
 | `backend/src/main/kotlin/com/tourverse/plugins/StatusPages.kt` | Modified | Improved normalized failure responses. |
 | `backend/src/test/kotlin/com/tourverse/ApplicationTest.kt` | Modified | Kept application testing aligned with startup changes. |
-| `androidApp/gradlew`, `androidApp/gradlew.bat` | Added | Platform-specific Android Gradle wrapper launchers. |
-| `androidApp/gradle/wrapper/*` | Added | Pinned Android Gradle distribution and wrapper bootstrap. |
-| `androidApp/gradle/gradle-daemon-jvm.properties` | Added | Android Gradle daemon JVM selection. |
-| `androidApp/app/build.gradle.kts` | Modified | Expanded Android dependencies and build behavior. |
-| `androidApp/app/src/main/kotlin/com/tourverse/data/remote/TourismApi.kt` | Modified | Kept Android networking aligned with the backend. |
-| `webApp/package-lock.json` | Added | Exact npm dependency-resolution lock file. |
-| `webApp/src/vite-env.d.ts` | Added | Type declarations for Vite environment variables. |
-| `webApp/tsconfig.node.json` | Modified | Corrected TypeScript/Vite build configuration. |
+| `frontend/androidApp/gradlew`, `frontend/androidApp/gradlew.bat` | Added | Platform-specific Android Gradle wrapper launchers. |
+| `frontend/androidApp/gradle/wrapper/*` | Added | Pinned Android Gradle distribution and wrapper bootstrap. |
+| `frontend/androidApp/gradle/gradle-daemon-jvm.properties` | Added | Android Gradle daemon JVM selection. |
+| `frontend/androidApp/app/build.gradle.kts` | Modified | Expanded Android dependencies and build behavior. |
+| `frontend/androidApp/app/src/main/kotlin/com/tourverse/data/remote/TourismApi.kt` | Modified | Kept Android networking aligned with the backend. |
+| `frontend/webApp/package-lock.json` | Added | Exact npm dependency-resolution lock file. |
+| `frontend/webApp/src/vite-env.d.ts` | Added | Type declarations for Vite environment variables. |
+| `frontend/webApp/tsconfig.node.json` | Modified | Corrected TypeScript/Vite build configuration. |
 | `.gitignore` and the three READMEs | Modified | Documented and protected the new build/database setup. |
 
 ### Recorded phase 3 — Full backend platform and destination-contract expansion
@@ -1634,18 +1640,18 @@ All test paths above are under
 | `test/.../TourismApiTest.kt` | Added | Query construction and response/error handling. |
 
 Paths in this table begin at
-`androidApp/app/src/main/kotlin/com/tourverse/` unless marked `test`.
+`frontend/androidApp/app/src/main/kotlin/com/tourverse/` unless marked `test`.
 
 #### Web contract and API tooling files
 
 | File or group | Change | What it held |
 |---|---|---|
-| `webApp/src/models/Destination.ts` | Modified | Current destination, query, paging, country, and error types. |
-| `webApp/src/services/api.ts` | Modified | Safe query construction and standardized error parsing. |
-| `webApp/src/services/api.test.ts` | Added | Web destination query and error tests. |
-| `webApp/src/App.tsx` | Modified | Paginated destination loading and state transitions. |
-| `webApp/src/components/DestinationCard.tsx` | Modified | Current nullable-field destination presentation. |
-| `webApp/src/styles/index.css` | Modified | Expanded catalogue and status styling. |
+| `frontend/webApp/src/models/Destination.ts` | Modified | Current destination, query, paging, country, and error types. |
+| `frontend/webApp/src/services/api.ts` | Modified | Safe query construction and standardized error parsing. |
+| `frontend/webApp/src/services/api.test.ts` | Added | Web destination query and error tests. |
+| `frontend/webApp/src/App.tsx` | Modified | Paginated destination loading and state transitions. |
+| `frontend/webApp/src/components/DestinationCard.tsx` | Modified | Current nullable-field destination presentation. |
+| `frontend/webApp/src/styles/index.css` | Modified | Expanded catalogue and status styling. |
 | `backend/src/main/resources/openapi/tourverse-openapi.yaml` | Added | Backend-served API specification. |
 | `postman/specs/TourVerse API/openapi.yaml` | Added | Postman-side copy of the API specification. |
 | `postman/collections/TourVerse API/**` | Added | Generated request definitions and examples for authentication, users, destinations, categories, community, services, bookings, notifications, and admin. |
@@ -1661,8 +1667,8 @@ Paths in this table begin at
 
 | File | Change | What it held |
 |---|---|---|
-| `androidApp/app/build.gradle.kts` | Modified | Android Studio/Gradle build alignment. |
-| `androidApp/.artifacts/.../*.artifact.md` | Modified | Updated generated planning/walkthrough artifacts. |
+| `frontend/androidApp/app/build.gradle.kts` | Modified | Android Studio/Gradle build alignment. |
+| `frontend/androidApp/.artifacts/.../*.artifact.md` | Modified | Updated generated planning/walkthrough artifacts. |
 
 This small commit was build-tool maintenance, not a new user feature.
 
@@ -1698,7 +1704,7 @@ navigable authenticated applications.
 | `app/build.gradle.kts` | Modified | Added navigation, lifecycle, security, and client dependencies/configuration. |
 
 All Kotlin paths are below
-`androidApp/app/src/main/kotlin/com/tourverse/`.
+`frontend/androidApp/app/src/main/kotlin/com/tourverse/`.
 
 #### Web files
 
@@ -1882,8 +1888,8 @@ candidate.
 | `.github/workflows/ci.yml` | Added | Backend, web, and Android jobs with dependency caching and read-only permissions. |
 | `backend/Dockerfile` | Modified | Multi-stage build, non-root runtime, curl-based health check, and production environment. |
 | `backend/docker-compose.yml` | Modified | Catalogue/provider environment variables and production seed protection. |
-| `webApp/Dockerfile` | Added | Node production build followed by an Nginx runtime image. |
-| `webApp/nginx.conf` | Added | SPA fallback, immutable asset caching, and browser security headers. |
+| `frontend/webApp/Dockerfile` | Added | Node production build followed by an Nginx runtime image. |
+| `frontend/webApp/nginx.conf` | Added | SPA fallback, immutable asset caching, and browser security headers. |
 | `deploy/Caddyfile` | Added | HTTPS proxy routing `/api/*` to Ktor and other paths to the web container. |
 | `deploy/docker-compose.production.yml` | Added | PostgreSQL, API, web, Caddy, health checks, volumes, restart rules, and private variables. |
 | `deploy/production.env.example` | Added | Placeholder-only production environment template. |
@@ -1896,8 +1902,8 @@ candidate.
 |---|---|---|
 | `README.md` | Modified | Linked the production runbook. |
 | `backend/README.md` | Modified | Added password change and deployment/security behavior. |
-| `androidApp/README.md` | Modified | Documented HTTPS flavours and private release signing. |
-| `webApp/README.md` | Modified | Documented the production container and same-origin API. |
+| `frontend/androidApp/README.md` | Modified | Documented HTTPS flavours and private release signing. |
+| `frontend/webApp/README.md` | Modified | Documented the production container and same-origin API. |
 | `docs/API_CONTRACT.md` | Modified | Added the password-change endpoint. |
 | `docs/ARCHITECTURE.md` | Modified | Added V14 and production topology. |
 | `docs/PROJECT_TREE.txt` | Modified | Added production-readiness files. |
@@ -1914,6 +1920,30 @@ This phase is the documentation work represented by the current file.
 
 No backend, Android, web, database, test, deployment, or runtime behavior is
 changed by this journal phase.
+
+### Current repository-organization phase — Consolidated frontend directory
+
+This phase grouped the two client projects beneath one repository boundary
+without combining their source code or build systems.
+
+| File or path | Change | What it holds |
+|---|---|---|
+| `frontend/androidApp/` | Moved from root `androidApp/` | Complete native Android project, preserving its Gradle wrapper, sources, tests, resources, package name, application ID, and README. |
+| `frontend/webApp/` | Moved from root `webApp/` | Complete React/TypeScript project, preserving npm configuration, sources, tests, Dockerfile, Nginx configuration, and README. |
+| `frontend/README.md` | Added | Frontend boundary, client responsibilities, commands, and links to both application guides. |
+| `.github/workflows/ci.yml` | Modified | Uses `frontend/androidApp` and `frontend/webApp` as job working directories and dependency-cache paths. |
+| `deploy/docker-compose.production.yml` | Modified | Builds the web image from `../frontend/webApp`. |
+| `.gitignore` | Modified | Ignores the web environment file at its new location. |
+| `.postman/resources.yaml` | Modified | Points Postman workspace metadata to the moved web package file. |
+| `README.md` | Modified | Shows the nested frontend layout and updated startup/build commands. |
+| `frontend/androidApp/README.md` | Modified | Uses the new Android project path in setup instructions. |
+| `frontend/webApp/README.md` | Modified | Uses the new web project path and source-tree heading. |
+| `docs/PROJECT_TREE.txt` | Modified | Prefixes Android and web source paths with `frontend/`. |
+| `docs/TourVerse creation journal.md` | Modified | Documents the new structure while preserving the historical path explanation. |
+| `frontend/androidApp/.artifacts/.../*.artifact.md` | Modified | Updates historical local file links so they still open the moved Gradle file. |
+
+Backend source, database migrations, REST behavior, client package names, API
+URLs, and user-facing behavior were not changed by this organizational phase.
 
 ### How to use the file journal during future development
 
