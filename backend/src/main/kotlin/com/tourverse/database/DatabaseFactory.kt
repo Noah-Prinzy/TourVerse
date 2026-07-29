@@ -16,6 +16,7 @@ object DatabaseFactory {
     private const val DATABASE_USER = "TOURVERSE_DATABASE_USER"
     private const val DATABASE_PASSWORD = "TOURVERSE_DATABASE_PASSWORD"
     private const val MARKETPLACE_DATABASE_URL = "DATABASE_URL"
+    private const val MARKETPLACE_DATABASE_URL_UNPOOLED = "DATABASE_URL_UNPOOLED"
 
     private val logger = LoggerFactory.getLogger(DatabaseFactory::class.java)
 
@@ -34,7 +35,7 @@ object DatabaseFactory {
         val newDataSource = createDataSource(databaseConfig)
 
         try {
-            runMigrations(newDataSource)
+            runMigrations(databaseConfig)
 
             Database.connect(newDataSource)
             logger.info("Exposed connected successfully to the TourVerse database.")
@@ -72,7 +73,16 @@ object DatabaseFactory {
                     "or provide the Vercel Marketplace DATABASE_URL."
             )
 
-        return parseMarketplaceDatabaseUrl(marketplaceUrl)
+        val applicationConfig = parseMarketplaceDatabaseUrl(marketplaceUrl)
+        val migrationConfig = AppEnvironment.get(MARKETPLACE_DATABASE_URL_UNPOOLED)
+            ?.let(::parseMarketplaceDatabaseUrl)
+            ?: applicationConfig
+
+        return applicationConfig.copy(
+            migrationJdbcUrl = migrationConfig.jdbcUrl,
+            migrationUsername = migrationConfig.username,
+            migrationPassword = migrationConfig.password
+        )
     }
 
     private fun parseMarketplaceDatabaseUrl(value: String): DatabaseConfig {
@@ -128,11 +138,15 @@ object DatabaseFactory {
         }
     }
 
-    private fun runMigrations(dataSource: HikariDataSource) {
+    private fun runMigrations(databaseConfig: DatabaseConfig) {
         logger.info("Running Flyway database migrations.")
 
         val migrationResult = Flyway.configure()
-            .dataSource(dataSource)
+            .dataSource(
+                databaseConfig.migrationJdbcUrl,
+                databaseConfig.migrationUsername,
+                databaseConfig.migrationPassword
+            )
             .locations("classpath:db/migration")
             .load()
             .migrate()
@@ -146,6 +160,9 @@ object DatabaseFactory {
     private data class DatabaseConfig(
         val jdbcUrl: String,
         val username: String,
-        val password: String
+        val password: String,
+        val migrationJdbcUrl: String = jdbcUrl,
+        val migrationUsername: String = username,
+        val migrationPassword: String = password
     )
 }
