@@ -1,0 +1,16 @@
+.git
+.github
+.idea
+.postman
+.vercel
+.env*
+docs
+deploy
+postman
+frontend/androidApp
+backend/.gradle
+backend/.kotlin
+backend/build
+frontend/webApp/node_modules
+frontend/webApp/dist
+*.log

@@ -66,8 +66,14 @@ private fun validateProductionConfiguration() {
         "Production must not expose development seed destination data."
     }
 
-    val databaseUrl = AppEnvironment.require("TOURVERSE_DATABASE_URL")
-    require(databaseUrl.startsWith("jdbc:postgresql://")) {
-        "Production TOURVERSE_DATABASE_URL must use PostgreSQL."
+    val databaseUrl = AppEnvironment.get("TOURVERSE_DATABASE_URL")
+    val marketplaceDatabaseUrl = AppEnvironment.get("DATABASE_URL")
+    require(
+        databaseUrl?.startsWith("jdbc:postgresql://") == true ||
+            marketplaceDatabaseUrl?.let {
+                it.startsWith("postgres://") || it.startsWith("postgresql://")
+            } == true
+    ) {
+        "Production must use PostgreSQL through TOURVERSE_DATABASE_URL or DATABASE_URL."
     }
 }

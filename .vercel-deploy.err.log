@@ -1,0 +1,216 @@
+Vercel CLI 58.3.0 (Node.js 24.16.0)
+Retrieving project…
+Deploying victoriauniversity/tourverse
+Uploading [--------------------] (0.0B/344B)
+Uploading [====================] (344.0B/344B)
+  Inspect         https://vercel.com/victoriauniversity/tourverse/DTf8LnmticSRLHSyKuJ7UKCe57SC
+  Production      https://tourverse-23fxoyul0-victoriauniversity.vercel.app
+Building…
+Running build in Cleveland, USA (East) – cle1
+Build machine configuration: 4 cores, 8 GB
+Retrieving list of deployment files...
+Previous build caches not available.
+Downloading 177 deployment files...
+Running "vercel build"
+Vercel CLI 58.1.0
+▲ container  buildah: buildah version 1.42.2 (image-spec 1.1.1, runtime-spec 1.2.1) (storage-driver=storage.conf)
+▲ container  buildah storage: driver=overlay graphRoot=/vercel/.containers/storage runRoot=/run/containers/storage backingFs=xfs — verified
+→ Authenticating to vcr.vercel.com as team_DzWvMXS1wDgs7eJxRGfnAqYy
+✓ authenticated
+→ Ensuring registry repository "frontend"
+✓ repository "frontend" already exists
+▲ container  Building image vcr.vercel.com/victoriauniversity/tourverse/frontend:4ddcd188fc1b (buildah)
+→ buildah build (linux/amd64)
+▲ container  layer store: cold (no cached images; first build or cache miss)
+[1/2] STEP 1/10: FROM node:22-alpine AS build
+Resolved "node" as an alias (/etc/containers/registries.conf.d/000-shortnames.conf)
+Trying to pull docker.io/library/node:22-alpine...
+Getting image source signatures
+Copying blob sha256:d10ff586f6bdbdd6000a70a914e56bf05bedc78de3311d08a953643982d84e23
+Copying blob sha256:3f4c164634d251a8b256151a9e1c1d3e5c5b21f1974f00a213875e66e3fa0801
+Copying blob sha256:55afa1ecc21d2bb5e5045f32dafee56272ffd89860bac26f6c32123439af26a4
+Copying blob sha256:1d4d101ceaad39fb56dcac0bb6cc291e6cdec3b711786f0c82b050b5b5b85690
+Copying config sha256:bd168dc5d9d77ba5687dc7a31cc0f507c35b66c1d6af5f910154d3881df7c0ee
+Writing manifest to image destination
+[1/2] STEP 2/10: WORKDIR /workspace
+--> 64a03375a215
+[1/2] STEP 3/10: COPY package.json package-lock.json ./
+--> b980c672b645
+[1/2] STEP 4/10: RUN npm ci
+added 106 packages, and audited 107 packages in 3s
+20 packages are looking for funding
+run `npm fund` for details
+2 high severity vulnerabilities
+To address all issues (including breaking changes), run:
+npm audit fix --force
+Run `npm audit` for details.
+npm notice
+npm notice New major version of npm available! 10.9.8 -> 12.0.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.0.1
+npm notice To update run: npm install -g npm@12.0.1
+npm notice
+--> 8c4735cb91b3
+[1/2] STEP 5/10: COPY . .
+--> 854ee05a2112
+[1/2] STEP 6/10: ARG VITE_API_BASE_URL=
+--> 4819753271a7
+[1/2] STEP 7/10: ARG VITE_GOOGLE_MAPS_API_KEY=
+--> b6bfa029d8c1
+[1/2] STEP 8/10: ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+--> f52d3679f8d5
+[1/2] STEP 9/10: ENV VITE_GOOGLE_MAPS_API_KEY=${VITE_GOOGLE_MAPS_API_KEY}
+--> f4e77eef8039
+[1/2] STEP 10/10: RUN npm run build
+> tourverse-web@1.0.0 build
+> tsc -b && vite build
+> tsc -b && vite build
+vite v6.4.3 building for production...
+transforming...
+✓ 62 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.49 kB │ gzip:  0.31 kB
+dist/assets/index-DpGATfZg.css    5.93 kB │ gzip:  1.96 kB
+dist/assets/index-DYkA8P2l.js   271.55 kB │ gzip: 84.31 kB
+✓ built in 1.66s
+--> 88f6edb68e57
+[2/2] STEP 1/4: FROM nginx:alpine
+Resolved "nginx" as an alias (/etc/containers/registries.conf.d/000-shortnames.conf)
+Trying to pull docker.io/library/nginx:alpine...
+Getting image source signatures
+Copying blob sha256:d0008c891db48b5f526d914bce9e8d889fe1a9d1f08291ae03fe97f871726f38
+Copying blob sha256:3cd534fe98c64d68a1f4f1c83abb8d5cba7ecfd7be88e592389929d12e6253da
+Copying blob sha256:62bec68d7c31c4c8a19d812d84da5f7748e54690c037979945b6c5b6c924b142
+Copying blob sha256:1223f016b4e4a2c21f7c49d4837fbfd47a9da6436b511690ca1e582fc2810d59
+Copying blob sha256:46f977ee452f4399c208714afa034868d6056864f8a0cf3c643ab143dd802c80
+Copying blob sha256:55afa1ecc21d2bb5e5045f32dafee56272ffd89860bac26f6c32123439af26a4
+Copying blob sha256:390dc935348d8070e695fbaae2a4bb114fb9e69c59f628e7576036ee9d5244c9
+Copying blob sha256:46519e7231d2eb5604df229beb44d59719a489eaa7aca52982535a010b07a9ed
+Copying config sha256:f0ba77f796e57c6fa89ae7f4fdad1665d6fcbd8e3f211535120542b337f9959e
+Writing manifest to image destination
+[2/2] STEP 2/4: COPY nginx.conf /etc/nginx/conf.d/default.conf
+--> 0bfb81050f3c
+[2/2] STEP 3/4: COPY --from=build /workspace/dist /usr/share/nginx/html
+--> 57ee8b9a2a95
+[2/2] STEP 4/4: EXPOSE 80
+[2/2] COMMIT vcr.vercel.com/victoriauniversity/tourverse/frontend:4ddcd188fc1b
+--> e996fb00458b
+Successfully tagged vcr.vercel.com/victoriauniversity/tourverse/frontend:4ddcd188fc1b
+e996fb00458bc1fc153a08593016500539970b4facce8d7c8649c44ba14d3059
+✓ built in 14.1s
+→ Pushing vcr.vercel.com/victoriauniversity/tourverse/frontend:4ddcd188fc1b
+▲ container  pushing vcr.vercel.com/victoriauniversity/tourverse/frontend:4ddcd188fc1b with zstd compression (level=3, force, oci)
+Getting image source signatures
+Copying blob sha256:ba418be4ca73f2e644b01101aaf3647140cfd1407d4d01f762a78896c2f1bdff
+Copying blob sha256:80b3a9bcaabdfe84da35652e3a9d2b6f41cb940a69b44e78eb3c73853b757d50
+Copying blob sha256:548098c6fe2fca0719cdfb84f13de923748e311ec743235b44f4b4d5fb1bf7b4
+Copying blob sha256:34884abbe92863fce933ed7c39c0e045631af0ed86d5cc0dfbdf9fdca426ce3c
+Copying blob sha256:b08673863e998a5b51fb20f896308adeb46667666ebb9ebb8fcf4094f363b667
+Copying blob sha256:f0cb70a55fc9da1ab4685457b07861b6f8a3e9da40e6f007412d38e45686a31c
+Copying blob sha256:d53e22d501e6f52a15053d3ba14e286af2271838c34bf9754a777381e77a7bfd
+Copying blob sha256:fbd591214bfc6863ddb2bada420ddcfa29b96a7593286fefb75b3ed2e2c78216
+Copying blob sha256:5b3649e61e9039e39d22abc23e36970ec9383745bb2d2dad36e5243526c7b6da
+Copying blob sha256:843dd9c7bc1998f55ed3f979aeccf4ebcff55557875e3b5a52c6fcd65557b185
+Copying config sha256:e996fb00458bc1fc153a08593016500539970b4facce8d7c8649c44ba14d3059
+Writing manifest to image destination
+✓ pushed sha256:b31f94d167c2… in 3.8s
+▲ container  Image reference vcr.vercel.com/victoriauniversity/tourverse/frontend@sha256:b31f94d167c23d347fa79f72c510ebe08a706b271152b333a69a3e1cc12b10ae
+▲ container  buildah: buildah version 1.42.2 (image-spec 1.1.1, runtime-spec 1.2.1) (storage-driver=storage.conf)
+▲ container  buildah storage: driver=overlay graphRoot=/vercel/.containers/storage runRoot=/run/containers/storage backingFs=xfs — verified
+→ Authenticating to vcr.vercel.com as team_DzWvMXS1wDgs7eJxRGfnAqYy
+✓ authenticated
+→ Ensuring registry repository "backend"
+✓ repository "backend" already exists
+▲ container  Building image vcr.vercel.com/victoriauniversity/tourverse/backend:4ddcd188fc1b (buildah)
+→ buildah build (linux/amd64)
+▲ container  layer store: warm (4 image(s) present before build)
+[1/2] STEP 1/4: FROM gradle:9.6.1-jdk17 AS build
+Resolving "gradle" using unqualified-search registries (/tmp/vercel-container-registries-zeJQ7y/registries.conf)
+Trying to pull docker.io/library/gradle:9.6.1-jdk17...
+Getting image source signatures
+Copying blob sha256:ed819469700fe2cd94f44a7c218a84e40cda16dd2e7e5238cbdef33e6153d536
+Copying blob sha256:422d3aa3ba1a8734c2aa3575bf9df62d17b5761fd1c17e7504081e7108ac01ba
+Copying blob sha256:12e2382a8f59965dd06ccdc6ebb879f0bdb0a0b1e415a206782795ccd7a68d83
+Copying blob sha256:04980de5b01bd9bddbfa1a123fd464f083d31d2fda3c7ee942c6eaf5d4ee3b25
+Copying blob sha256:2799028f98c9e48bd118994ee7e096209f0cc2a2b5a5c34764c8ecd09ae2ac18
+Copying blob sha256:a3679419df184857c0d317d7cdaad6187f6c0f0b68dd2ed58becf174e28f4c1b
+Copying blob sha256:b274f0e076597ca99648a9064848ab5600ecffbb928fc35d6305943fef4d8a5c
+Copying blob sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1
+Copying blob sha256:e76527e0819c1efcbe836bfdac65c544c256514edeb80628561b3cc946d5d318
+Copying blob sha256:f59e0af895d803c9505a6df3e3ce113aca6bc1472db65e3d2de63c4ca5af2925
+Copying blob sha256:2edf77cf4814369a2af2a8c707211aebd4fb116b500eead507a622e476958011
+Copying config sha256:32d28ee07cdd008b91cfc5f95f3f4134f728e39612b4b1c7524f2048324915f0
+Writing manifest to image destination
+[1/2] STEP 2/4: WORKDIR /workspace
+--> 9124ee2e8548
+[1/2] STEP 3/4: COPY . .
+--> 84bee85fd329
+[1/2] STEP 4/4: RUN gradle clean installDist --no-daemon
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.6.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+> Task :clean UP-TO-DATE
+> Task :checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :processResources
+> Task :compileKotlin
+> Task :compileJava NO-SOURCE
+> Task :classes
+> Task :jar
+> Task :startScripts
+> Task :installDist
+BUILD SUCCESSFUL in 1m 11s
+6 actionable tasks: 5 executed, 1 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.1/userguide/configuration_cache_enabling.html
+--> eaccb5b3136d
+[2/2] STEP 1/8: FROM eclipse-temurin:17-jre
+Resolving "eclipse-temurin" using unqualified-search registries (/tmp/vercel-container-registries-zeJQ7y/registries.conf)
+Trying to pull docker.io/library/eclipse-temurin:17-jre...
+Getting image source signatures
+Copying blob sha256:d9d09586b42e6ca2daf5bc6997c79b6544c8ab6968007bf6d45461244e0a8f6d
+Copying blob sha256:a3679419df184857c0d317d7cdaad6187f6c0f0b68dd2ed58becf174e28f4c1b
+Copying blob sha256:7d65f5f1479f861859edc72a46c18ab2b6ff2bd34d80ef9f641712eae9e8a9c8
+Copying blob sha256:fbac163eaafde74c3da742469a97741c4778d60068e9db627322f0634099c0dd
+Copying blob sha256:8bced5e73fb1b22956eb96aa1bc19c36c9b5a420969f487274ef92f847b1b0c2
+Copying blob sha256:ed819469700fe2cd94f44a7c218a84e40cda16dd2e7e5238cbdef33e6153d536
+Copying config sha256:2bbdd664aaf4a28e8b51771915cf30310b01e332f974a34946cc1946bca83684
+Writing manifest to image destination
+[2/2] STEP 2/8: WORKDIR /app
+--> ee7b6a5758bd
+[2/2] STEP 3/8: RUN useradd --system --uid 10001 tourverse
+useradd warning: tourverse's uid 10001 is greater than SYS_UID_MAX 999
+--> bc3058b6b871
+[2/2] STEP 4/8: COPY --from=build /workspace/build/install/tourverse-backend/ /app/
+--> 804837769081
+[2/2] STEP 5/8: USER tourverse
+--> 093a8cd72eb0
+[2/2] STEP 6/8: EXPOSE 80
+--> 1d6d0fb39244
+[2/2] STEP 7/8: ENV TOURVERSE_ENV=production
+--> 0c21d100e9fc
+[2/2] STEP 8/8: CMD ["/app/bin/tourverse-backend"]
+[2/2] COMMIT vcr.vercel.com/victoriauniversity/tourverse/backend:4ddcd188fc1b
+--> 04cbdd54505e
+Successfully tagged vcr.vercel.com/victoriauniversity/tourverse/backend:4ddcd188fc1b
+04cbdd54505ec5d72b12ffd0ea98ddf36b1c1c3caddec9a4ffdff58582271a66
+✓ built in 91.3s
+→ Pushing vcr.vercel.com/victoriauniversity/tourverse/backend:4ddcd188fc1b
+▲ container  pushing vcr.vercel.com/victoriauniversity/tourverse/backend:4ddcd188fc1b with zstd compression (level=3, force, oci)
+Getting image source signatures
+Copying blob sha256:301aed5e5c67f2f150c475697fb725021e964c983eb2fd9b102daa95a031fc60
+Copying blob sha256:d6b1a90bccf18353db11e206211d1438050e64d14c56a48ae067131e0a3cc245
+Copying blob sha256:6179f2d67db29f34420fb206023a7d7a7128556412c2450b793330715ff40d79
+Copying blob sha256:32c0ccbd895551d580429f55759ea6f1f10e3a0b3053c55ef3738860520c0f72
+Copying blob sha256:85c8d6ef0f93810fd512e6c9564bdbf80f3015370c459fba586740544f97b2ed
+Copying blob sha256:d85193ee52f1c6af3150f4f15bde65704cf6ec6f113dc3802940d62410eb8da5
+Copying blob sha256:5fe890f7bcc7c4f6172f8dff82d4937c852d3845f4d968d1b85326494b465dc6
+Copying blob sha256:d7d9508d358c42d51140b25f99456bb070c458527e65fda524904dd3b95f2781
+Copying config sha256:04cbdd54505ec5d72b12ffd0ea98ddf36b1c1c3caddec9a4ffdff58582271a66
+Writing manifest to image destination
+✓ pushed sha256:8e63c059bf5e… in 4.6s
+▲ container  Image reference vcr.vercel.com/victoriauniversity/tourverse/backend@sha256:8e63c059bf5ed3507431e9125b42005a66503b61c75dcf7444a181152f6db8af
+WARNING! Build output contains no "functions" or "static" directory; the build may not have produced any deployable output.
+Build Completed in /vercel/output [2m]
+Deploying outputs...
+[2K[1A[2K[G  Production      https://tourverse-23fxoyul0-victoriauniversity.vercel.app
+Completing…
+▲ Aliased         https://tourverse-mu.vercel.app
+tall/backend/ /app/": checking on sources under "/vercel/.containers/storage/overlay/8d4bf063aa8fb2be109136efba51d56d221aa953b40786ee345caf17141c95d0/merged": copier: stat: "/workspace/build/install/backend": no such file or directory

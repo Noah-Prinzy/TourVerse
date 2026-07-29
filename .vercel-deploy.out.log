@@ -1,0 +1,34 @@
+{
+  "status": "ok",
+  "deployment": {
+    "id": "dpl_DTf8LnmticSRLHSyKuJ7UKCe57SC",
+    "url": "https://tourverse-23fxoyul0-victoriauniversity.vercel.app",
+    "inspectorUrl": "https://vercel.com/victoriauniversity/tourverse/DTf8LnmticSRLHSyKuJ7UKCe57SC",
+    "readyState": "READY",
+    "target": "production",
+    "deploymentApiUrl": "https://api.vercel.com/v13/deployments/dpl_DTf8LnmticSRLHSyKuJ7UKCe57SC"
+  },
+  "message": "Deployment tourverse-23fxoyul0-victoriauniversity.vercel.app ready.",
+  "next": [
+    {
+      "command": "vercel curl https://tourverse-23fxoyul0-victoriauniversity.vercel.app",
+      "when": "Verify deployment, including when Deployment Protection is enabled"
+    },
+    {
+      "command": "vercel inspect tourverse-23fxoyul0-victoriauniversity.vercel.app",
+      "when": "Inspect deployment"
+    },
+    {
+      "command": "vercel deploy --prod",
+      "when": "Promote to production"
+    }
+  ]
+}
+0/merged\": copier: stat: \"/workspace/build/install/backend\": no such file or directory",
+  "next": [
+    {
+      "command": "vercel deploy",
+      "when": "retry deploy"
+    }
+  ]
+}

@@ -33,3 +33,5 @@ yarn-error.log*
 # Environment files
 backend/.env
 frontend/webApp/.env
+
+.vercel
