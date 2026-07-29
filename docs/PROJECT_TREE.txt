@@ -1,8 +1,12 @@
 ﻿TourVerse source tree (generated 2026-07-28)
-Generated files, dependency caches, local secrets, and binaries are excluded.
+Updated 2026-07-29. Generated files, dependency caches, local secrets, and binaries are excluded.
 
 androidApp\app\build.gradle.kts
 androidApp\app\src\main\AndroidManifest.xml
+androidApp\app\src\main\res\xml\network_security_config.xml
+androidApp\app\src\development\res\xml\network_security_config.xml
+androidApp\app\src\emulator\res\xml\network_security_config.xml
+androidApp\app\src\physical\res\xml\network_security_config.xml
 androidApp\app\src\main\kotlin\com\tourverse\data\model\Destination.kt
 androidApp\app\src\main\kotlin\com\tourverse\data\remote\ApiClient.kt
 androidApp\app\src\main\kotlin\com\tourverse\data\remote\TourismApi.kt
@@ -29,6 +33,7 @@ backend\gradle\wrapper\gradle-wrapper.properties
 backend\gradlew
 backend\gradlew.bat
 backend\README.md
+backend\scripts\change-password.ps1
 backend\settings.gradle.kts
 backend\src\main\kotlin\com\tourverse\Application.kt
 backend\src\main\kotlin\com\tourverse\database\DatabaseFactory.kt
@@ -114,9 +119,11 @@ docs\ARCHITECTURE.md
 docs\PROJECT_TREE.txt
 README.md
 webApp\.env.example
+webApp\Dockerfile
 webApp\index.html
 webApp\package.json
 webApp\package-lock.json
+webApp\nginx.conf
 webApp\README.md
 webApp\src\App.tsx
 webApp\src\components\DestinationCard.tsx
@@ -198,3 +205,10 @@ backend\src\main\kotlin\com\tourverse\services\GooglePlacesService.kt
 webApp\src\features\destinations\DestinationMap.tsx
 webApp\src\features\destinations\mapUtils.ts
 androidApp\app\src\main\kotlin\com\tourverse\ui\screens\DestinationMap.kt
+
+Production-readiness and deployment files:
+.github\workflows\ci.yml
+deploy\Caddyfile
+deploy\docker-compose.production.yml
+deploy\production.env.example
+deploy\README.md

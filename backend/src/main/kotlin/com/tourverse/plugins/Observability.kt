@@ -1,5 +1,6 @@
 package com.tourverse.plugins
 
+import com.tourverse.utils.AppEnvironment
 import io.ktor.http.HttpHeaders
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -20,6 +21,9 @@ fun Application.configureObservability() {
         header("X-Frame-Options", "DENY")
         header("Referrer-Policy", "no-referrer")
         header("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+        if (AppEnvironment.isProduction) {
+            header("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+        }
     }
     install(Compression) {
         gzip { priority = 1.0 }

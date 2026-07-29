@@ -64,6 +64,7 @@ Errors use the same shape with `status: "error"`. Expected statuses include:
 | POST | `/api/auth/logout-all` | Authenticated | None |
 | GET | `/api/users/me` | Authenticated | None |
 | PUT | `/api/users/me` | Authenticated | `UpdateProfileRequest` |
+| PUT | `/api/users/me/password` | Authenticated | `ChangePasswordRequest` |
 | GET | `/api/users/me/profile` | Authenticated | None |
 | PUT | `/api/users/me/profile` | Authenticated | `UpdateUserProfileRequest` |
 | PUT | `/api/users/me/profile/image` | Authenticated | `UpdateProfileImageRequest` |

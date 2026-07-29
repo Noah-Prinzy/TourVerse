@@ -219,10 +219,16 @@ services. Category and administration routes require `ADMIN`.
 | POST | `/api/auth/logout-all` | Authenticated |
 | GET | `/api/users/me` | Authenticated |
 | PUT | `/api/users/me` | Authenticated |
+| PUT | `/api/users/me/password` | Authenticated; current password confirmation |
 | GET | `/api/users/me/profile` | Authenticated |
 | PUT | `/api/users/me/profile` | Authenticated |
 | PUT | `/api/users/me/profile/image` | Authenticated |
 | DELETE | `/api/users/me` | Authenticated; password confirmation |
+
+Changing a password validates the current password, applies the normal password
+policy, and revokes all refresh sessions. For a private interactive terminal
+workflow, run `scripts/change-password.ps1`; it prompts securely and does not
+place passwords in command history or source files.
 
 ### Destinations
 

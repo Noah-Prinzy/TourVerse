@@ -18,4 +18,13 @@ class AuthValidatorTest {
     fun `registration accepts valid data`() {
         AuthValidator.validateRegistration(RegisterRequest("Noah", "Prince", "noah@example.com", "Secure123"))
     }
+
+    @Test
+    fun `registration rejects excessively long password`() {
+        assertFailsWith<ValidationException> {
+            AuthValidator.validateRegistration(
+                RegisterRequest("Noah", "Prince", "noah@example.com", "A1" + "a".repeat(127))
+            )
+        }
+    }
 }

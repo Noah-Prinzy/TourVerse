@@ -192,6 +192,13 @@ review candidates. Candidate approval is explicit and surfaces source,
 duplicate, category, and image-licensing concerns. Provider keys are never sent
 to or configured in Vite.
 
+## Production container
+
+Set `VITE_API_BASE_URL` to the deployed HTTPS API origin before a standalone
+build. The provider-neutral deployment in `../deploy` serves the web app and
+API from the same origin, so its container uses relative `/api` requests.
+Restrict `VITE_GOOGLE_MAPS_API_KEY` to the exact production HTTPS origin.
+
 ## Destination maps
 
 Destination details render one Google marker only when coordinates are valid

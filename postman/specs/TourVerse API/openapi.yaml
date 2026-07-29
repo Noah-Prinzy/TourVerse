@@ -221,6 +221,23 @@ paths:
       summary: Update the authenticated profile
       responses:
         '200': { description: Profile updated }
+  /api/users/me/password:
+    put:
+      tags: [Authentication]
+      summary: Change the authenticated user's password and revoke refresh sessions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChangePasswordRequest' }
+      responses:
+        '200':
+          description: Password changed and refresh sessions revoked
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiMessage' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
   /api/favorites:
     get:
       tags: [Favorites]
@@ -293,6 +310,16 @@ components:
       properties:
         status: { type: string }
         message: { type: string }
+    ChangePasswordRequest:
+      type: object
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword: { type: string, format: password }
+        newPassword:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 128
   responses:
     BadRequest:
       description: Invalid request

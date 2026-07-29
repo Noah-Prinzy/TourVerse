@@ -40,6 +40,7 @@ Detailed guides:
 - [Web guide](webApp/README.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [API contract](docs/API_CONTRACT.md)
+- [Production deployment runbook](deploy/README.md)
 - [Project tree](docs/PROJECT_TREE.txt)
 
 ## Architecture

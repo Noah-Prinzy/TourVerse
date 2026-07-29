@@ -59,4 +59,15 @@ private fun validateProductionConfiguration() {
     require(origins.isNotBlank() && origins != "*") {
         "Production TOURVERSE_ALLOWED_ORIGINS must list explicit origins."
     }
+    require(origins.split(',').map(String::trim).all { it.startsWith("https://") }) {
+        "Production TOURVERSE_ALLOWED_ORIGINS must contain HTTPS origins only."
+    }
+    require(!AppEnvironment.getBoolean("TOURVERSE_INCLUDE_DEVELOPMENT_SEED_DATA", false)) {
+        "Production must not expose development seed destination data."
+    }
+
+    val databaseUrl = AppEnvironment.require("TOURVERSE_DATABASE_URL")
+    require(databaseUrl.startsWith("jdbc:postgresql://")) {
+        "Production TOURVERSE_DATABASE_URL must use PostgreSQL."
+    }
 }

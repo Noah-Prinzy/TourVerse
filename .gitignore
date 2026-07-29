@@ -9,9 +9,13 @@
 
 # Kotlin and Gradle
 .gradle/
+.kotlin/
 build/
 **/build/
 local.properties
+*.jks
+*.keystore
+keystore.properties
 
 # Android
 captures/

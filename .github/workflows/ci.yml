@@ -1,0 +1,76 @@
+name: TourVerse CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+          cache-dependency-path: backend/**/*.gradle*
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
+      - name: Build and test
+        run: ./gradlew clean build --no-daemon
+
+  web:
+    name: Web
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: webApp
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: webApp/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Test
+        run: npm test
+      - name: Build
+        env:
+          VITE_API_BASE_URL: https://api.example.invalid
+        run: npm run build
+
+  android:
+    name: Android
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: androidApp
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+          cache-dependency-path: androidApp/**/*.gradle*
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
+      - name: Test and assemble non-release variants
+        run: ./gradlew clean test assembleDevelopmentDebug assembleEmulatorDebug assemblePhysicalDebug --no-daemon

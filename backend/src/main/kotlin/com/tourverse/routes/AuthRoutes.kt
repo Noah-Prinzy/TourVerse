@@ -42,5 +42,17 @@ fun Route.authRoutes(service: AuthService) {
                 )
             )
         }
+        put("/password") {
+            service.changePassword(
+                call.authenticatedUser().id,
+                call.receive<ChangePasswordRequest>()
+            )
+            call.respond(
+                ApiMessage(
+                    "success",
+                    "Password changed successfully. Sign in again on your other devices."
+                )
+            )
+        }
     }
 }

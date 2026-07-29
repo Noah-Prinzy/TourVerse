@@ -23,6 +23,29 @@ val androidGoogleMapsApiKey = providers
     .orElse(providers.environmentVariable("TOURVERSE_ANDROID_GOOGLE_MAPS_API_KEY"))
     .orElse("")
 
+val releaseStoreFile = providers
+    .gradleProperty("tourverse.releaseStoreFile")
+    .orElse(providers.environmentVariable("TOURVERSE_ANDROID_RELEASE_STORE_FILE"))
+    .orNull
+val releaseStorePassword = providers
+    .gradleProperty("tourverse.releaseStorePassword")
+    .orElse(providers.environmentVariable("TOURVERSE_ANDROID_RELEASE_STORE_PASSWORD"))
+    .orNull
+val releaseKeyAlias = providers
+    .gradleProperty("tourverse.releaseKeyAlias")
+    .orElse(providers.environmentVariable("TOURVERSE_ANDROID_RELEASE_KEY_ALIAS"))
+    .orNull
+val releaseKeyPassword = providers
+    .gradleProperty("tourverse.releaseKeyPassword")
+    .orElse(providers.environmentVariable("TOURVERSE_ANDROID_RELEASE_KEY_PASSWORD"))
+    .orNull
+val releaseSigningConfigured = listOf(
+    releaseStoreFile,
+    releaseStorePassword,
+    releaseKeyAlias,
+    releaseKeyPassword
+).all { !it.isNullOrBlank() }
+
 android {
     namespace = "com.tourverse"
     compileSdk = 36
@@ -39,6 +62,31 @@ android {
             "GOOGLE_MAPS_CONFIGURED",
             androidGoogleMapsApiKey.map { it.isNotBlank() }.get().toString()
         )
+    }
+
+    signingConfigs {
+        if (releaseSigningConfigured) {
+            create("productionRelease") {
+                storeFile = rootProject.file(requireNotNull(releaseStoreFile))
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
+
+    buildTypes {
+        getByName("release") {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            if (releaseSigningConfigured) {
+                signingConfig = signingConfigs.getByName("productionRelease")
+            }
+        }
     }
 
     flavorDimensions += "apiEnvironment"
@@ -106,6 +154,28 @@ android {
     kotlinOptions {
         jvmTarget = "21"
     }
+}
+
+val validateProductionRelease by tasks.registering {
+    group = "verification"
+    description = "Validates the production API URL and private Android signing configuration."
+    doLast {
+        require(productionApiBaseUrl.get().startsWith("https://")) {
+            "TOURVERSE_PRODUCTION_API_URL must be a non-empty HTTPS URL."
+        }
+        require(releaseSigningConfigured) {
+            "Configure all TOURVERSE_ANDROID_RELEASE_* signing environment variables."
+        }
+        require(file(requireNotNull(releaseStoreFile)).isFile) {
+            "The configured Android release keystore does not exist."
+        }
+    }
+}
+
+tasks.matching {
+    it.name == "assembleProductionRelease" || it.name == "bundleProductionRelease"
+}.configureEach {
+    dependsOn(validateProductionRelease)
 }
 
 dependencies {

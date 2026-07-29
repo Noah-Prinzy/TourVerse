@@ -1,7 +1,7 @@
 # TourVerse Architecture
 
 This document describes the architecture currently implemented in the
-repository as of July 28, 2026.
+repository as of July 29, 2026.
 
 ## System overview
 
@@ -28,13 +28,26 @@ repository as of July 28, 2026.
                                  v
 +------------------------------------------------------------------+
 | PostgreSQL                                                       |
-| Flyway-managed schema V1-V12                                     |
+| Flyway-managed schema V1-V14                                     |
 +------------------------------------------------------------------+
 ```
 
 The backend is the system of record. Both clients now cover authenticated
 profiles, destination discovery/details, categories, favorites, reviews, and
 private trips; the backend still implements additional platform modules.
+
+## Production topology
+
+The provider-neutral deployment under `deploy/` places Caddy at the public
+boundary for automatic HTTPS, routes `/api/*` to the Ktor container, and serves
+the React single-page application through Nginx. PostgreSQL is reachable only
+inside the Compose network. The API runs Flyway before accepting requests and
+keeps development seed destinations disabled in production.
+
+Android production builds require an HTTPS API URL and private release-signing
+configuration. Development-oriented Android flavors retain explicit local HTTP
+overrides. GitHub Actions independently verifies the backend, web, and Android
+projects without receiving production credentials.
 
 ## Backend startup and request flow
 

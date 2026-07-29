@@ -197,9 +197,9 @@ Cards render the cover image or fallback, category, name, derived city/country
 location, and description. Rating was removed because it is not present in the
 backend destination response.
 
-The manifest grants internet access and currently permits cleartext HTTP to
-support local development. Production security should disable unrestricted
-cleartext traffic, normally through build-specific manifest configuration.
+The manifest grants internet access. Development, emulator, and physical
+flavors use local network-security overrides that permit HTTP; production uses
+the main policy and rejects cleartext traffic.
 
 ## Backend destination contract
 
@@ -234,6 +234,24 @@ and a key is configured. Supply it through the ignored Gradle property
 `TOURVERSE_ANDROID_GOOGLE_MAPS_API_KEY`; a manifest placeholder receives it.
 Restrict the key by package name, signing-certificate SHA fingerprint, and Maps
 SDK for Android.
+
+## Signed production release
+
+Production builds require an HTTPS API URL and a private upload keystore. Keep
+the keystore and all signing passwords outside Git:
+
+```powershell
+$env:TOURVERSE_PRODUCTION_API_URL="https://tourverse.example.com/"
+$env:TOURVERSE_ANDROID_RELEASE_STORE_FILE="C:\private\tourverse-upload.jks"
+$env:TOURVERSE_ANDROID_RELEASE_STORE_PASSWORD="<private>"
+$env:TOURVERSE_ANDROID_RELEASE_KEY_ALIAS="tourverse-upload"
+$env:TOURVERSE_ANDROID_RELEASE_KEY_PASSWORD="<private>"
+$env:TOURVERSE_ANDROID_GOOGLE_MAPS_API_KEY="<restricted-android-key>"
+.\gradlew.bat bundleProductionRelease
+```
+
+Back up the upload keystore privately because it is required for future
+application updates.
 
 All variants compile without a key. Missing keys or coordinates preserve the
 details and show a fallback. “Open in Google Maps” uses an encoded geo URI with

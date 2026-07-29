@@ -8,6 +8,7 @@ import com.tourverse.exceptions.UnauthorizedException
 import com.tourverse.models.*
 import com.tourverse.security.PasswordHasher
 import com.tourverse.security.TokenService
+import com.tourverse.utils.ValidationException
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
@@ -95,6 +96,28 @@ class AuthService {
         }
         if (updatedRows == 0) throw NotFoundException("User not found")
         loadUser(userId)
+    }
+
+    suspend fun changePassword(userId: UUID, request: ChangePasswordRequest) = suspendTransaction {
+        val user = UsersTable.selectAll()
+            .where { UsersTable.id eq userId }
+            .singleOrNull()
+            ?: throw NotFoundException("User not found")
+
+        if (!PasswordHasher.verify(request.currentPassword, user[UsersTable.passwordHash])) {
+            throw UnauthorizedException("Current password is incorrect")
+        }
+        if (request.currentPassword == request.newPassword) {
+            throw ValidationException("The new password must be different from the current password")
+        }
+        AuthValidator.validatePassword(request.newPassword)
+
+        UsersTable.update({ UsersTable.id eq userId }) {
+            it[passwordHash] = PasswordHasher.hash(request.newPassword)
+            it[updatedAt] = OffsetDateTime.now(ZoneOffset.UTC)
+        }
+        RefreshTokensTable.deleteWhere { RefreshTokensTable.userId eq userId }
+        Unit
     }
 
     suspend fun revokeAllSessions(userId: UUID) = suspendTransaction {

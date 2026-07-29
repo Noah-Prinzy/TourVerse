@@ -21,11 +21,11 @@ object AuthValidator {
     }
 
     fun validatePassword(password: String) {
-        if (password.length < 8 || !password.any(Char::isUpperCase) ||
+        if (password.length !in 8..128 || !password.any(Char::isUpperCase) ||
             !password.any(Char::isLowerCase) || !password.any(Char::isDigit)
         ) {
             throw ValidationException(
-                "Password must contain at least 8 characters, including uppercase, lowercase, and a number."
+                "Password must contain 8 to 128 characters, including uppercase, lowercase, and a number."
             )
         }
     }

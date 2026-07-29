@@ -1,0 +1,79 @@
+services:
+  postgres:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-tourverse_db}
+      POSTGRES_USER: ${POSTGRES_USER:-tourverse_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-tourverse_user} -d ${POSTGRES_DB:-tourverse_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    security_opt:
+      - no-new-privileges:true
+
+  api:
+    build:
+      context: ../backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: "8081"
+      TOURVERSE_ENV: production
+      TOURVERSE_DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-tourverse_db}
+      TOURVERSE_DATABASE_USER: ${POSTGRES_USER:-tourverse_user}
+      TOURVERSE_DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      TOURVERSE_JWT_SECRET: ${TOURVERSE_JWT_SECRET:?Set TOURVERSE_JWT_SECRET}
+      TOURVERSE_ALLOWED_ORIGINS: https://${TOURVERSE_DOMAIN:?Set TOURVERSE_DOMAIN}
+      TOURVERSE_RATE_LIMIT_PER_MINUTE: ${TOURVERSE_RATE_LIMIT_PER_MINUTE:-120}
+      TOURVERSE_INCLUDE_DEVELOPMENT_SEED_DATA: "false"
+      TOURVERSE_OPENTRIPMAP_API_KEY: ${TOURVERSE_OPENTRIPMAP_API_KEY:-}
+      TOURVERSE_GOOGLE_PLACES_API_KEY: ${TOURVERSE_GOOGLE_PLACES_API_KEY:-}
+    expose:
+      - "8081"
+    security_opt:
+      - no-new-privileges:true
+
+  web:
+    build:
+      context: ../webApp
+      args:
+        VITE_API_BASE_URL: ""
+        VITE_GOOGLE_MAPS_API_KEY: ${VITE_GOOGLE_MAPS_API_KEY:-}
+    restart: unless-stopped
+    expose:
+      - "80"
+    security_opt:
+      - no-new-privileges:true
+
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+    environment:
+      TOURVERSE_DOMAIN: ${TOURVERSE_DOMAIN:?Set TOURVERSE_DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:

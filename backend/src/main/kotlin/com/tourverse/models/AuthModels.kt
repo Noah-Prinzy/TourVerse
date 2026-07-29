@@ -24,6 +24,12 @@ data class RefreshTokenRequest(val refreshToken: String)
 data class LogoutRequest(val refreshToken: String)
 
 @Serializable
+data class ChangePasswordRequest(
+    val currentPassword: String,
+    val newPassword: String
+)
+
+@Serializable
 data class UpdateProfileRequest(
     val firstName: String? = null,
     val lastName: String? = null,
