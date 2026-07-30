@@ -14,16 +14,19 @@ import java.time.ZoneOffset
 import java.util.UUID
 
 class PostgresCategoryRepository : CategoryRepository {
+    // Retrieves all from persistent or request state.
     override suspend fun getAll(includeInactive: Boolean): List<CategoryResponse> = suspendTransaction {
         val query = CategoriesTable.selectAll()
         (if (includeInactive) query else query.where { CategoriesTable.active eq true })
             .orderBy(CategoriesTable.name to SortOrder.ASC).map { it.toCategory() }
     }
 
+    // Retrieves by id from persistent or request state.
     override suspend fun getById(id: UUID): CategoryResponse? = suspendTransaction {
         CategoriesTable.selectAll().where { CategoriesTable.id eq id }.singleOrNull()?.toCategory()
     }
 
+    // Creates create and returns the resulting domain value.
     override suspend fun create(request: CreateCategoryRequest): CategoryResponse = suspendTransaction {
         val slug = CategoryValidator.slug(request.name)
         if (CategoriesTable.selectAll().where { CategoriesTable.slug eq slug }.any()) throw ConflictException("Category already exists")
@@ -37,6 +40,7 @@ class PostgresCategoryRepository : CategoryRepository {
         CategoriesTable.selectAll().where { CategoriesTable.id eq id }.single().toCategory()
     }
 
+    // Updates update within the current transaction or request.
     override suspend fun update(id: UUID, request: UpdateCategoryRequest): CategoryResponse? = suspendTransaction {
         val newSlug = request.name?.let(CategoryValidator::slug)
         if (newSlug != null && CategoriesTable.selectAll().where { CategoriesTable.slug eq newSlug }.any { it[CategoriesTable.id] != id }) {
@@ -52,10 +56,12 @@ class PostgresCategoryRepository : CategoryRepository {
         if (count == 0) null else CategoriesTable.selectAll().where { CategoriesTable.id eq id }.single().toCategory()
     }
 
+    // Removes or invalidates delete for the requested resource.
     override suspend fun delete(id: UUID): Boolean = suspendTransaction {
         CategoriesTable.deleteWhere { CategoriesTable.id eq id } > 0
     }
 
+    // Encapsulates the result row operation behind a reusable function.
     private fun ResultRow.toCategory() = CategoryResponse(
         id = this[CategoriesTable.id], name = this[CategoriesTable.name], slug = this[CategoriesTable.slug],
         description = this[CategoriesTable.description], iconUrl = this[CategoriesTable.iconUrl], active = this[CategoriesTable.active],

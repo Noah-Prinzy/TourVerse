@@ -17,6 +17,7 @@ class OpenTripMapDestinationImportProvider(
     override val providerName = "OPENTRIPMAP"
     override val enabled = !apiKey.isNullOrBlank()
 
+    // Retrieves search from the relevant repository or external provider.
     override suspend fun search(query: DestinationImportQuery): List<DestinationCandidate> {
         if (!enabled) throw DestinationImportProviderException(
             "OpenTripMap is disabled. Configure TOURVERSE_OPENTRIPMAP_API_KEY on the backend."
@@ -26,8 +27,10 @@ class OpenTripMapDestinationImportProvider(
         )
     }
 
+    // Retrieves details from the relevant repository or external provider.
     override suspend fun getDetails(externalId: String): DestinationCandidate? = null
 
+    // Converts the supplied values into the parse place form required by the domain model.
     internal fun parsePlace(place: JsonObject, query: DestinationImportQuery): DestinationCandidate? {
         val externalId = place["xid"]?.jsonPrimitive?.contentOrNull?.trim()
             ?.takeIf(String::isNotEmpty) ?: return null

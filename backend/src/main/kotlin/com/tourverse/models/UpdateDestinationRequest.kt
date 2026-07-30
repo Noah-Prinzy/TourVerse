@@ -3,6 +3,7 @@ package com.tourverse.models
 import kotlinx.serialization.Serializable
 
 @Serializable
+// Carries update destination request values between application layers.
 data class UpdateDestinationRequest(
     val name: String,
     val country: String,

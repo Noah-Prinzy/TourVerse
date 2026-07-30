@@ -22,6 +22,7 @@ import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import java.util.UUID
 
+// Handles destination CRUD operations and query parsing for the public catalogue API.
 fun Route.destinationRoutes(service: DestinationService) {
     route("/api/destinations") {
         get {
@@ -103,12 +104,14 @@ fun Route.destinationRoutes(service: DestinationService) {
     }
 }
 
+// Converts input into the parse uuid representation used by the next application layer.
 internal fun parseUuid(value: String?): UUID {
     return value
         ?.let { runCatching { UUID.fromString(it) }.getOrNull() }
         ?: throw ValidationException("Destination ID must be a valid UUID.")
 }
 
+// Converts input into the parse destination query representation used by the next application layer.
 internal fun parseDestinationQuery(
     search: String?,
     country: String?,

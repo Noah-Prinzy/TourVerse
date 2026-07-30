@@ -16,9 +16,12 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.UUID
 
+// Coordinates the user profile service responsibilities for this feature.
 class UserProfileService {
+    // Retrieves get needed by this flow.
     suspend fun get(userId: UUID): UserProfileResponse = suspendTransaction { load(userId) }
 
+    // Updates update while preserving the feature's consistency rules.
     suspend fun update(userId: UUID, request: UpdateUserProfileRequest): UserProfileResponse = suspendTransaction {
         ProfileValidator.validate(request)
         val changed = UsersTable.update({ UsersTable.id eq userId }) { row ->
@@ -34,6 +37,7 @@ class UserProfileService {
         load(userId)
     }
 
+    // Updates image while preserving the feature's consistency rules.
     suspend fun updateImage(userId: UUID, request: UpdateProfileImageRequest): UserProfileResponse = suspendTransaction {
         ProfileValidator.validateImage(request)
         val changed = UsersTable.update({ UsersTable.id eq userId }) { row ->
@@ -44,6 +48,7 @@ class UserProfileService {
         load(userId)
     }
 
+    // Removes or invalidates account safely.
     suspend fun deleteAccount(userId: UUID, request: DeleteAccountRequest) = suspendTransaction {
         val user = UsersTable.selectAll().where { UsersTable.id eq userId }.singleOrNull()
             ?: throw NotFoundException("User not found")
@@ -55,13 +60,18 @@ class UserProfileService {
         Unit
     }
 
+    // Retrieves load needed by this flow.
     private fun load(id: UUID): UserProfileResponse = UsersTable.selectAll().where { UsersTable.id eq id }
         .singleOrNull()?.toProfile() ?: throw NotFoundException("User not found")
 
+    // Transforms the supplied data into normalize interests output used by the application.
     private fun normalizeInterests(values: List<String>) = values.map(String::trim).filter(String::isNotEmpty).distinctBy(String::lowercase)
+    // Transforms the supplied data into encode interests output used by the application.
     private fun encodeInterests(values: List<String>) = values.joinToString("\n")
+    // Transforms the supplied data into decode interests output used by the application.
     private fun decodeInterests(value: String) = value.lines().map(String::trim).filter(String::isNotEmpty)
 
+    // Performs the result row operation for this part of the application.
     private fun ResultRow.toProfile() = UserProfileResponse(
         id = this[UsersTable.id], firstName = this[UsersTable.firstName], lastName = this[UsersTable.lastName],
         email = this[UsersTable.email], profileImageUrl = this[UsersTable.profileImageUrl], bio = this[UsersTable.bio],

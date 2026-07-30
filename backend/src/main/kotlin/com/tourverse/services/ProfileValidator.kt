@@ -6,6 +6,7 @@ import com.tourverse.utils.ValidationException
 import java.net.URI
 
 object ProfileValidator {
+    // Validates validate and stops the workflow when input is invalid.
     fun validate(request: UpdateUserProfileRequest) {
         request.firstName?.let { if (it.trim().length !in 2..80) fail("First name must contain 2 to 80 characters") }
         request.lastName?.let { if (it.trim().length !in 2..80) fail("Last name must contain 2 to 80 characters") }
@@ -17,6 +18,7 @@ object ProfileValidator {
         }
     }
 
+    // Validates image and stops the workflow when input is invalid.
     fun validateImage(request: UpdateProfileImageRequest) {
         val value = request.profileImageUrl?.trim()?.takeIf(String::isNotEmpty) ?: return
         val uri = runCatching { URI(value) }.getOrNull()
@@ -25,5 +27,6 @@ object ProfileValidator {
         }
     }
 
+    // Coordinates the fail business workflow for callers.
     private fun fail(message: String): Nothing = throw ValidationException(message)
 }

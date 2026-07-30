@@ -1,5 +1,6 @@
 package com.tourverse.models
 
+// Carries destination query values between application layers.
 data class DestinationQuery(
     val search: String? = null,
     val country: String? = null,
@@ -15,6 +16,7 @@ data class DestinationQuery(
         get() = ((page - 1) * size).toLong()
 }
 
+// Lists the supported destination sort field values used by validation and persistence.
 enum class DestinationSortField {
     NAME,
     COUNTRY,
@@ -24,6 +26,7 @@ enum class DestinationSortField {
     UPDATED_AT
 }
 
+// Lists the supported sort direction values used by validation and persistence.
 enum class SortDirection {
     ASC,
     DESC

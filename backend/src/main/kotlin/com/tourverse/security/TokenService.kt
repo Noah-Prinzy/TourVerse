@@ -36,6 +36,7 @@ object TokenService {
             }
     }
 
+    // Creates access token and returns the resulting domain value.
     fun createAccessToken(
         userId: UUID,
         role: String,
@@ -48,6 +49,7 @@ object TokenService {
         return IssuedAccessToken("$payload.${sign(payload)}", lifetimeSeconds)
     }
 
+    // Validates access token before protected work continues.
     fun verifyAccessToken(token: String): AccessTokenClaims? {
         val parts = token.split('.')
         if (parts.size != 2 || !constantTimeEquals(sign(parts[0]), parts[1])) return null
@@ -58,24 +60,29 @@ object TokenService {
         }.getOrNull()
     }
 
+    // Creates refresh token and returns the resulting domain value.
     fun createRefreshToken(): String {
         val bytes = ByteArray(48).also(random::nextBytes)
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes)
     }
 
+    // Checks whether hash refresh token is true in the current context.
     fun hashRefreshToken(token: String): String {
         val digest = MessageDigest.getInstance("SHA-256").digest(token.toByteArray(StandardCharsets.UTF_8))
         return digest.joinToString("") { "%02x".format(it) }
     }
 
+    // Encapsulates the sign operation behind a reusable function.
     private fun sign(value: String): String {
         val mac = Mac.getInstance("HmacSHA256")
         mac.init(SecretKeySpec(secret.toByteArray(StandardCharsets.UTF_8), "HmacSHA256"))
         return encode(mac.doFinal(value.toByteArray(StandardCharsets.UTF_8)))
     }
 
+    // Converts input into the encode representation used by the next application layer.
     private fun encode(bytes: ByteArray): String = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes)
 
+    // Encapsulates the constant time equals operation behind a reusable function.
     private fun constantTimeEquals(first: String, second: String): Boolean =
         MessageDigest.isEqual(first.toByteArray(), second.toByteArray())
 }

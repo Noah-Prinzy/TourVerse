@@ -7,6 +7,7 @@ import java.net.URI
 
 object DestinationValidator {
 
+    // Validates validate and stops the workflow when input is invalid.
     fun validate(request: CreateDestinationRequest) {
         validateFields(
             name = request.name,
@@ -21,6 +22,7 @@ object DestinationValidator {
         )
     }
 
+    // Validates validate and stops the workflow when input is invalid.
     fun validate(request: UpdateDestinationRequest) {
         validateFields(
             name = request.name,
@@ -35,6 +37,7 @@ object DestinationValidator {
         )
     }
 
+    // Validates fields and stops the workflow when input is invalid.
     private fun validateFields(
         name: String,
         country: String,
@@ -68,6 +71,7 @@ object DestinationValidator {
         coverImageUrl?.trim()?.takeIf(String::isNotEmpty)?.let { validateHttpUrl(it) }
     }
 
+    // Validates text and stops the workflow when input is invalid.
     private fun requireText(value: String, field: String, maxLength: Int) {
         val cleanValue = value.trim()
         if (cleanValue.isEmpty()) {
@@ -78,6 +82,7 @@ object DestinationValidator {
         }
     }
 
+    // Coordinates the optional text business workflow for callers.
     private fun optionalText(value: String?, field: String, maxLength: Int) {
         value?.trim()?.takeIf(String::isNotEmpty)?.let {
             if (it.length > maxLength) {
@@ -86,6 +91,7 @@ object DestinationValidator {
         }
     }
 
+    // Validates http url and stops the workflow when input is invalid.
     private fun validateHttpUrl(value: String) {
         val uri = runCatching { URI(value) }.getOrNull()
         val validScheme = uri?.scheme.equals("http", ignoreCase = true) ||

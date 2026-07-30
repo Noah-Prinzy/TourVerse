@@ -7,6 +7,7 @@ import java.time.Instant
 import java.util.UUID
 
 @Serializable
+// Carries category response values between application layers.
 data class CategoryResponse(
     @Serializable(with = UUIDSerializer::class) val id: UUID,
     val name: String,
@@ -19,6 +20,7 @@ data class CategoryResponse(
 )
 
 @Serializable
+// Carries create category request values between application layers.
 data class CreateCategoryRequest(
     val name: String,
     val description: String? = null,
@@ -27,6 +29,7 @@ data class CreateCategoryRequest(
 )
 
 @Serializable
+// Carries update category request values between application layers.
 data class UpdateCategoryRequest(
     val name: String? = null,
     val description: String? = null,

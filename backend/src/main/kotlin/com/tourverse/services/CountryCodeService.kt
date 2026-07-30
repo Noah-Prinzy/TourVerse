@@ -20,6 +20,7 @@ object CountryCodeService {
         normalizeName(name) to code
     } + aliases
 
+    // Converts the supplied values into the normalize code form required by the domain model.
     fun normalizeCode(value: String?): String? {
         val code = value?.trim()?.uppercase()?.takeIf(String::isNotEmpty) ?: return null
         if (!Regex("^[A-Z]{2}$").matches(code) || code !in countriesByCode) {
@@ -28,11 +29,14 @@ object CountryCodeService {
         return code
     }
 
+    // Coordinates the code for name business workflow for callers.
     fun codeForName(value: String): String? = codesByName[normalizeName(value)]
 
+    // Coordinates the display name business workflow for callers.
     fun displayName(code: String): String = countriesByCode[code]
         ?: throw ValidationException("Country code must be a recognized ISO 3166-1 alpha-2 code.")
 
+    // Retrieves resolve from the relevant repository or external provider.
     fun resolve(country: String, countryCode: String?): Pair<String, String?> {
         val explicitCode = normalizeCode(countryCode)
         val inferredCode = codeForName(country)
@@ -43,6 +47,7 @@ object CountryCodeService {
         return (normalizedCode?.let(::displayName) ?: country.trim()) to normalizedCode
     }
 
+    // Converts the supplied values into the normalize name form required by the domain model.
     private fun normalizeName(value: String) =
         value.trim().lowercase().replace(Regex("\\s+"), " ")
 }

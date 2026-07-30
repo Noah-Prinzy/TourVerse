@@ -12,6 +12,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.*
 import java.util.UUID
 
+// Registers the route endpoints and delegates each request to its service layer.
 fun Route.categoryRoutes(service: CategoryService) {
     route("/api/categories") {
         get { call.respond(service.getAll(false)) }
@@ -36,6 +37,7 @@ fun Route.categoryRoutes(service: CategoryService) {
     }
 }
 
+// Encapsulates the io operation behind a reusable function.
 private fun io.ktor.server.application.ApplicationCall.categoryId(): UUID =
     parameters["id"]?.let { runCatching { UUID.fromString(it) }.getOrNull() }
         ?: throw ValidationException("Category ID must be a valid UUID")

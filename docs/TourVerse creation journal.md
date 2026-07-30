@@ -1945,6 +1945,32 @@ without combining their source code or build systems.
 Backend source, database migrations, REST behavior, client package names, API
 URLs, and user-facing behavior were not changed by this organizational phase.
 
+### Current documentation phase — Source-code explanations
+
+This phase added concise learning-oriented comments to the production source.
+The comments explain the responsibility of functions, classes, interfaces,
+React components, Compose screens, ViewModels, repositories, services, route
+groups, serializers, validators, and important conversion helpers. They do not
+change runtime behavior.
+
+| Files worked on | Change | What was explained |
+|---|---|---|
+| `backend/src/main/kotlin/com/tourverse/Application.kt` and `plugins/*.kt` | Commented | Backend startup and the Ktor plugin pipeline for HTTP, logging, security, serialization, routing, and error handling. |
+| `backend/src/main/kotlin/com/tourverse/routes/*.kt` | Commented | Endpoint registration, request parsing, authentication boundaries, and service delegation. |
+| `backend/src/main/kotlin/com/tourverse/services/*.kt` | Commented | Authentication, profiles, destinations, categories, community features, catalogue synchronization, provider imports, validation, mapping, and duplicate detection. |
+| `backend/src/main/kotlin/com/tourverse/repositories/*.kt` | Commented | Repository contracts, PostgreSQL queries, transactions, persistence mapping, and import-candidate storage. |
+| `backend/src/main/kotlin/com/tourverse/database/**/*.kt` | Commented | Database initialization and Exposed table responsibilities. |
+| `backend/src/main/kotlin/com/tourverse/models/*.kt`, `dto/*.kt`, `security/*.kt`, `utils/*.kt`, and `exceptions/*.kt` | Commented | API models, shared response shapes, token/password operations, serializers, environment helpers, and error types. |
+| `frontend/androidApp/app/src/main/kotlin/com/tourverse/MainActivity.kt`, `AppContainer.kt`, and `ui/navigation/*.kt` | Commented | Android startup, dependency wiring, session-aware navigation, and top-level screen flow. |
+| `frontend/androidApp/app/src/main/kotlin/com/tourverse/ui/**/*.kt` | Commented | Compose screens, reusable UI sections, maps, ViewModel state, events, and asynchronous loading. |
+| `frontend/androidApp/app/src/main/kotlin/com/tourverse/data/**/*.kt` and `state/*.kt` | Commented | API contracts, client setup, models, repositories, encrypted token storage, and session management. |
+| `frontend/webApp/src/App.tsx`, `RouterApp.tsx`, `main.tsx`, `components/*.tsx`, and `routes/*.tsx` | Commented | React startup, destination browsing, shared layout, reusable status components, and route protection. |
+| `frontend/webApp/src/features/**/*.tsx` and `pages/*.tsx` | Commented | Authentication, profiles, favourites, trips, destination details/maps, administration, event handlers, and screen state. |
+| `frontend/webApp/src/services/*.ts`, `state/*.tsx`, and `models/*.ts` | Commented | HTTP requests, session persistence, authentication context, conversion helpers, and TypeScript data contracts. |
+
+No tests, migrations, API contracts, configuration values, or application
+logic were changed by this documentation phase.
+
 ### How to use the file journal during future development
 
 When a new TourVerse phase is completed, add:

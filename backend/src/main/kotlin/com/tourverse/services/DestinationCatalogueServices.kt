@@ -14,11 +14,13 @@ object DestinationFreshnessPolicy {
     val externalCore: Duration = Duration.ofDays(30)
     val coordinates: Duration = Duration.ofDays(90)
 
+    // Coordinates the expires at business workflow for callers.
     fun expiresAt(origin: DataOrigin, verifiedAt: Instant): Instant? =
         if (origin == DataOrigin.EXTERNAL || origin == DataOrigin.HYBRID) {
             verifiedAt.plus(externalCore)
         } else null
 
+    // Coordinates the cache status business workflow for callers.
     fun cacheStatus(origin: DataOrigin, expiresAt: Instant?, now: Instant = Instant.now()): CacheStatus =
         when {
             origin == DataOrigin.TOURVERSE_CURATED || origin == DataOrigin.DEVELOPMENT_SEED ->
@@ -29,6 +31,7 @@ object DestinationFreshnessPolicy {
 }
 
 object DestinationContentHasher {
+    // Checks whether hash applies to the current data.
     fun hash(vararg values: String?): String {
         val normalized = values.joinToString("\u001f") { it?.trim().orEmpty() }
         return MessageDigest.getInstance("SHA-256")
@@ -38,11 +41,13 @@ object DestinationContentHasher {
 }
 
 object DestinationNormalizationService {
+    // Converts the supplied values into the normalize name form required by the domain model.
     fun normalizeName(value: String): String =
         value.trim().replace(Regex("\\s+"), " ")
 }
 
 object DestinationMergeService {
+    // Updates merge while keeping related state consistent.
     fun merge(current: Destination, external: ExternalDestination): Destination {
         if (current.dataOrigin == DataOrigin.TOURVERSE_CURATED) return current
         return current.copy(
@@ -59,6 +64,7 @@ object DestinationMergeService {
 object DestinationProviderValidator {
     private val externalId = Regex("[A-Za-z0-9._:-]{1,255}")
 
+    // Validates validate and stops the workflow when input is invalid.
     fun validate(destination: ExternalDestination) {
         if (destination.name.isBlank()) throw ValidationException("Provider destination name must not be blank.")
         CountryCodeService.normalizeCode(destination.countryCode)
@@ -89,6 +95,7 @@ class DestinationCatalogueService(
     private val repository: DestinationImportRepository,
     private val importService: DestinationImportService
 ) {
+    // Updates sync while keeping related state consistent.
     suspend fun sync(adminId: UUID, request: CatalogueSyncRequest): List<DestinationImportBatch> {
         if (request.publishMode != "REVIEW_REQUIRED") {
             throw ValidationException("publishMode must be REVIEW_REQUIRED.")
@@ -109,9 +116,13 @@ class DestinationCatalogueService(
         }
     }
 
+    // Coordinates the jobs business workflow for callers.
     suspend fun jobs() = repository.listBatches()
+    // Coordinates the stale business workflow for callers.
     suspend fun stale() = repository.listStaleDestinations()
+    // Coordinates the sources business workflow for callers.
     suspend fun sources(destinationId: UUID) = repository.listSources(destinationId)
+    // Coordinates the request refresh business workflow for callers.
     suspend fun requestRefresh(destinationId: UUID) =
         repository.markRefreshPending(destinationId)
             ?: throw com.tourverse.exceptions.NotFoundException("Destination not found.")

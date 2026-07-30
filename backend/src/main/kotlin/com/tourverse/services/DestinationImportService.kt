@@ -16,6 +16,7 @@ class DestinationImportService(
     private val providers = providers.associateBy { it.providerName.uppercase() }
     private val lastRequest = ConcurrentHashMap<String, Instant>()
 
+    // Retrieves search from the relevant repository or external provider.
     suspend fun search(adminId: UUID, request: DestinationImportQuery): DestinationImportBatch {
         val providerName = request.provider.trim().uppercase()
         val provider = providers[providerName]
@@ -52,11 +53,16 @@ class DestinationImportService(
         }
     }
 
+    // Retrieves batches from the relevant repository or external provider.
     suspend fun listBatches() = repository.listBatches()
+    // Retrieves batch from the relevant repository or external provider.
     suspend fun getBatch(id: UUID) = repository.getBatch(id) ?: throw NotFoundException("Import batch not found.")
+    // Retrieves candidates from the relevant repository or external provider.
     suspend fun listCandidates(batchId: UUID?, status: DestinationImportStatus?) = repository.listCandidates(batchId, status)
+    // Retrieves candidate from the relevant repository or external provider.
     suspend fun getCandidate(id: UUID) = repository.getCandidate(id) ?: throw NotFoundException("Import candidate not found.")
 
+    // Updates retry while keeping related state consistent.
     suspend fun retry(adminId: UUID, batchId: UUID): DestinationImportBatch {
         val batch = getBatch(batchId)
         return search(adminId, DestinationImportQuery(
@@ -66,6 +72,7 @@ class DestinationImportService(
         ))
     }
 
+    // Updates candidate while keeping related state consistent.
     suspend fun updateCandidate(id: UUID, request: UpdateDestinationCandidateRequest): DestinationCandidate {
         request.name?.let { length(it, "Name", 150, false) }
         request.country?.let { length(it, "Country", 100, false) }
@@ -77,16 +84,19 @@ class DestinationImportService(
         return repository.updateCandidate(id, request) ?: throw NotFoundException("Import candidate not found.")
     }
 
+    // Updates candidate while keeping related state consistent.
     suspend fun rejectCandidate(id: UUID, adminId: UUID, request: RejectDestinationCandidateRequest): DestinationCandidate {
         length(request.reason, "Rejection reason", 500, false)
         return repository.rejectCandidate(id, adminId, request.reason.trim())
             ?: throw NotFoundException("Import candidate not found.")
     }
 
+    // Updates candidate while keeping related state consistent.
     suspend fun linkCandidate(id: UUID, adminId: UUID, request: LinkDestinationCandidateRequest): DestinationCandidate =
         repository.linkCandidate(id, adminId, request.destinationId)
             ?: throw NotFoundException("Import candidate or destination not found.")
 
+    // Updates candidate while keeping related state consistent.
     suspend fun approveCandidate(id: UUID, adminId: UUID): DestinationCandidate {
         val candidate = getCandidate(id)
         DestinationValidator.validate(CreateDestinationRequest(
@@ -107,12 +117,14 @@ class DestinationImportService(
         return approved
     }
 
+    // Coordinates the length business workflow for callers.
     private fun length(value: String, field: String, max: Int, blankAllowed: Boolean = true) {
         val clean = value.trim()
         if (!blankAllowed && clean.isBlank()) throw ValidationException("$field must not be blank.")
         if (clean.length > max) throw ValidationException("$field must not exceed $max characters.")
     }
 
+    // Validates url and stops the workflow when input is invalid.
     private fun validateUrl(value: String) {
         val uri = runCatching { URI(value) }.getOrNull()
         if (uri == null || uri.scheme?.lowercase() !in setOf("http", "https") || uri.host.isNullOrBlank()) {

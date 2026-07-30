@@ -8,6 +8,7 @@ import java.text.Normalizer
 import kotlin.math.*
 
 object DestinationDuplicateDetector {
+    // Coordinates the assess business workflow for callers.
     fun assess(candidate: DestinationCandidate, destination: Destination): DuplicateAssessment {
         val reasons = mutableListOf<DuplicateReason>()
         val sameCountry = candidate.countryCode != null && candidate.countryCode == destination.countryCode
@@ -30,6 +31,7 @@ object DestinationDuplicateDetector {
         return DuplicateAssessment(outcome, reasons)
     }
 
+    // Converts the supplied values into the normalize form required by the domain model.
     internal fun normalize(value: String): String = Normalizer
         .normalize(value, Normalizer.Form.NFD)
         .replace(Regex("\\p{M}+"), "")
@@ -38,6 +40,7 @@ object DestinationDuplicateDetector {
         .trim()
         .replace(Regex("\\s+"), " ")
 
+    // Coordinates the distance km business workflow for callers.
     private fun distanceKm(lat1: Double?, lon1: Double?, lat2: Double?, lon2: Double?): Double? {
         if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) return null
         val dLat = Math.toRadians(lat2 - lat1)

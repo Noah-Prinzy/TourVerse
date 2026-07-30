@@ -13,6 +13,7 @@ import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import io.ktor.server.request.path
 import org.slf4j.event.Level
 
+// Adds general observability features such as headers, compression, and request logging.
 fun Application.configureObservability() {
     install(ForwardedHeaders)
     install(XForwardedHeaders)

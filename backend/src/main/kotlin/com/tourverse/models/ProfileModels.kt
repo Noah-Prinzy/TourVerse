@@ -7,6 +7,7 @@ import java.time.Instant
 import java.util.UUID
 
 @Serializable
+// Carries user profile response values between application layers.
 data class UserProfileResponse(
     @Serializable(with = UUIDSerializer::class) val id: UUID,
     val firstName: String,
@@ -23,6 +24,7 @@ data class UserProfileResponse(
 )
 
 @Serializable
+// Carries update user profile request values between application layers.
 data class UpdateUserProfileRequest(
     val firstName: String? = null,
     val lastName: String? = null,
@@ -33,7 +35,9 @@ data class UpdateUserProfileRequest(
 )
 
 @Serializable
+// Carries update profile image request values between application layers.
 data class UpdateProfileImageRequest(val profileImageUrl: String?)
 
 @Serializable
+// Carries delete account request values between application layers.
 data class DeleteAccountRequest(val password: String)

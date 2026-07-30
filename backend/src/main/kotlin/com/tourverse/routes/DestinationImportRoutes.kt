@@ -10,6 +10,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.*
 import java.util.UUID
 
+// Registers the route endpoints and delegates each request to its service layer.
 fun Route.destinationImportRoutes(service: DestinationImportService) {
     route("/api/admin/destination-imports") {
         post("/search") {
@@ -70,6 +71,7 @@ fun Route.destinationImportRoutes(service: DestinationImportService) {
     }
 }
 
+// Encapsulates the import uuid operation behind a reusable function.
 private fun importUuid(value: String?, label: String): UUID =
     value?.let { runCatching { UUID.fromString(it) }.getOrNull() }
         ?: throw ValidationException("$label ID must be a valid UUID.")

@@ -18,6 +18,7 @@ import kotlinx.serialization.json.*
 import io.ktor.serialization.kotlinx.json.json
 import java.time.Instant
 
+// Coordinates the wikidata destination import provider responsibilities for this feature.
 class WikidataDestinationImportProvider(
     private val client: HttpClient = defaultClient(),
     private val throttleMillis: Long = 250
@@ -25,6 +26,7 @@ class WikidataDestinationImportProvider(
     override val providerName = "WIKIDATA"
     override val enabled = true
 
+    // Retrieves search needed by this flow.
     override suspend fun search(query: DestinationImportQuery): List<DestinationCandidate> {
         val code = CountryCodeService.normalizeCode(query.countryCode)!!
         val limit = query.limit.coerceIn(1, 100)
@@ -74,8 +76,10 @@ class WikidataDestinationImportProvider(
         }
     }
 
+    // Retrieves details needed by this flow.
     override suspend fun getDetails(externalId: String): DestinationCandidate? = null
 
+    // Transforms the supplied data into build sparql output used by the application.
     internal fun buildSparql(countryEntityId: String, limit: Int): String {
         require(ENTITY_ID.matches(countryEntityId)) { "Invalid Wikidata country entity ID." }
         return """
@@ -100,6 +104,7 @@ class WikidataDestinationImportProvider(
         """.trimIndent()
     }
 
+    // Retrieves country entity needed by this flow.
     private suspend fun resolveCountryEntity(countryCode: String): String {
         val query = """SELECT ?country WHERE { ?country wdt:P297 "$countryCode". } LIMIT 1"""
         val binding = executeSparql(query)["results"]?.jsonObject
@@ -113,6 +118,7 @@ class WikidataDestinationImportProvider(
             ?: throw DestinationImportProviderException("Wikidata returned an invalid country identity.")
     }
 
+    // Performs the execute sparql operation for this part of the application.
     private suspend fun executeSparql(query: String): JsonObject {
         val responseText = client.get(SPARQL_ENDPOINT) {
             parameter("query", query)
@@ -123,6 +129,7 @@ class WikidataDestinationImportProvider(
         return Json.parseToJsonElement(responseText).jsonObject
     }
 
+    // Retrieves metadata needed by this flow.
     private suspend fun loadMetadata(entityIds: List<String>): Map<String, EntityMetadata> {
         val responseText = client.get(ENTITY_ENDPOINT) {
             parameter("action", "wbgetentities")
@@ -149,8 +156,10 @@ class WikidataDestinationImportProvider(
         }.toMap()
     }
 
+    // Transforms the supplied data into parse discovered place output used by the application.
     private fun parseDiscoveredPlace(element: JsonElement): DiscoveredPlace? {
         val binding = element.jsonObject
+        // Performs the value operation for this part of the application.
         fun value(name: String) = binding[name]?.jsonObject?.get("value")?.jsonPrimitive?.contentOrNull
         val externalId = value("place")?.substringAfterLast('/')?.takeIf(ENTITY_ID::matches)
             ?: return null
@@ -158,7 +167,9 @@ class WikidataDestinationImportProvider(
         return DiscoveredPlace(externalId, point?.first, point?.second)
     }
 
+    // Transforms the supplied data into parse binding output used by the application.
     internal fun parseBinding(binding: JsonObject, countryCode: String): DestinationCandidate? {
+        // Performs the value operation for this part of the application.
         fun value(name: String) = binding[name]?.jsonObject?.get("value")?.jsonPrimitive?.contentOrNull
         val entityUrl = value("place") ?: return null
         val externalId = entityUrl.substringAfterLast('/').takeIf { Regex("Q\\d+").matches(it) } ?: return null
@@ -183,6 +194,7 @@ class WikidataDestinationImportProvider(
         )
     }
 
+    // Transforms the supplied data into parse point output used by the application.
     private fun parsePoint(value: String): Pair<Double, Double>? {
         val match = Regex("""Point\((-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)\)""").matchEntire(value)
             ?: return null
@@ -196,6 +208,7 @@ class WikidataDestinationImportProvider(
         private const val SPARQL_ENDPOINT = "https://query.wikidata.org/sparql"
         private const val ENTITY_ENDPOINT = "https://www.wikidata.org/w/api.php"
         private const val USER_AGENT = "TourVerse/1.0 destination-catalogue (contact: project administrator)"
+        // Performs the default client operation for this part of the application.
         private fun defaultClient() = HttpClient(CIO) {
             install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
             install(HttpTimeout) {
@@ -206,12 +219,14 @@ class WikidataDestinationImportProvider(
         }
     }
 
+    // Represents discovered place data exchanged or stored by the application.
     private data class DiscoveredPlace(
         val externalId: String,
         val latitude: Double?,
         val longitude: Double?
     )
 
+    // Represents entity metadata data exchanged or stored by the application.
     private data class EntityMetadata(
         val name: String,
         val description: String?

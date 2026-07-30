@@ -66,7 +66,6 @@ backend/
 |   `-- logback.xml
 |-- src/test/kotlin/    Route, validation, password, token, and service tests
 |-- .env.example
-|-- .env.production.example
 |-- Dockerfile
 |-- docker-compose.yml
 `-- README.md
@@ -97,11 +96,13 @@ Runtime and security variables:
 
 | Variable | Purpose |
 | --- | --- |
+| `POSTGRES_PASSWORD` | Initializes PostgreSQL when using Docker Compose; keep it equal to `TOURVERSE_DATABASE_PASSWORD` |
 | `TOURVERSE_JWT_SECRET` | Signs access tokens; use a unique secret |
 | `TOURVERSE_ENV` | Set to `production` to enable strict startup checks |
 | `TOURVERSE_ALLOWED_ORIGINS` | Comma-separated CORS origins |
 | `TOURVERSE_RATE_LIMIT_PER_MINUTE` | Per-client limit; defaults to 120 |
 | `PORT` | Overrides the default server port 8081 |
+| `TOURVERSE_PORT` | Host port published by Docker Compose; defaults to 8081 |
 | `TOURVERSE_INCLUDE_DEVELOPMENT_SEED_DATA` | Includes development seeds; defaults off in production |
 | `TOURVERSE_OPENTRIPMAP_API_KEY` | Optional backend-only key; provider remains policy-disabled |
 | `TOURVERSE_GOOGLE_PLACES_API_KEY` | Optional backend-only key for bounded ADMIN Place ID linking |
@@ -110,7 +111,9 @@ Development permits a local fallback JWT secret and, when no origins are
 configured, allows any CORS host. Production requires a non-placeholder JWT
 secret of at least 48 characters and explicit non-wildcard origins.
 
-Do not commit `.env`, real credentials, tokens, or production URLs.
+`.env.example` is the single official configuration template for local and
+production setups. Do not commit `.env`, real credentials, tokens, or
+production URLs.
 
 ## Local database and startup
 
@@ -382,8 +385,17 @@ matching credentials and valid Flyway history:
 
 ## Docker deployment
 
-Copy `.env.production.example` to a local `.env`, replace every placeholder,
-then run:
+Copy the official template to a local `.env`:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Replace every placeholder, keep `POSTGRES_PASSWORD` equal to
+`TOURVERSE_DATABASE_PASSWORD`, use a JWT secret of at least 48 characters, and
+set `TOURVERSE_ALLOWED_ORIGINS` to the deployed HTTPS origins. Docker Compose
+sets `TOURVERSE_ENV=production` and disables development seed data for the API
+container. Then run:
 
 ```bash
 docker compose up --build -d

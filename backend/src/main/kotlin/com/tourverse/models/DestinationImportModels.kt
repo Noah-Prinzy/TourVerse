@@ -7,21 +7,25 @@ import java.time.Instant
 import java.util.UUID
 
 @Serializable
+// Lists the supported destination import status values used by validation and persistence.
 enum class DestinationImportStatus {
     PENDING_REVIEW, APPROVED, REJECTED, POSSIBLE_DUPLICATE, IMPORT_FAILED
 }
 
 @Serializable
+// Lists the supported destination import batch status values used by validation and persistence.
 enum class DestinationImportBatchStatus {
     RUNNING, COMPLETED, FAILED
 }
 
 @Serializable
+// Lists the supported destination provider values used by validation and persistence.
 enum class DestinationProvider {
     WIKIDATA, OPENTRIPMAP, GOOGLE_PLACES, TOURVERSE, DEVELOPMENT_SEED
 }
 
 @Serializable
+// Carries destination import query values between application layers.
 data class DestinationImportQuery(
     val provider: String,
     val countryCode: String,
@@ -35,6 +39,7 @@ data class DestinationImportQuery(
 )
 
 @Serializable
+// Carries destination candidate values between application layers.
 data class DestinationCandidate(
     @Serializable(with = UUIDSerializer::class) val id: UUID = UUID.randomUUID(),
     @Serializable(with = UUIDSerializer::class) val batchId: UUID? = null,
@@ -68,6 +73,7 @@ data class DestinationCandidate(
 )
 
 @Serializable
+// Carries destination import batch values between application layers.
 data class DestinationImportBatch(
     @Serializable(with = UUIDSerializer::class) val id: UUID,
     val provider: String,

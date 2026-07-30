@@ -28,7 +28,9 @@ import com.tourverse.services.GooglePlacesHttpClient
 import io.ktor.server.application.Application
 import io.ktor.server.routing.routing
 
+// Registers every API route and injects the service instances they depend on.
 fun Application.configureRouting() {
+    // Build the service layer once so each route can reuse the same repositories.
     val destinationService = DestinationService(PostgresDestinationRepository())
     val authService = AuthService()
     val profileService = UserProfileService()

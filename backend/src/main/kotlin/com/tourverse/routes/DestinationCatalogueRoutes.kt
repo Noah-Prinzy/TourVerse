@@ -13,6 +13,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.*
 import java.util.UUID
 
+// Registers the route endpoints and delegates each request to its service layer.
 fun Route.destinationCatalogueRoutes(
     catalogue: DestinationCatalogueService,
     googlePlaces: GooglePlaceLinkService
@@ -75,6 +76,7 @@ fun Route.destinationCatalogueRoutes(
     }
 }
 
+// Encapsulates the catalogue uuid operation behind a reusable function.
 private fun catalogueUuid(value: String?): UUID =
     value?.let { runCatching { UUID.fromString(it) }.getOrNull() }
         ?: throw ValidationException("Destination ID must be a valid UUID.")

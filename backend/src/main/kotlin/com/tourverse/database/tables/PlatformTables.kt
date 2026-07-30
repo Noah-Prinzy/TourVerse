@@ -5,6 +5,7 @@ import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.javatime.date
 import org.jetbrains.exposed.v1.javatime.timestampWithTimeZone
 
+// Provides shared tourism services table behavior without requiring callers to create an instance.
 object TourismServicesTable : Table("tourism_services") {
     val id = javaUUID("id")
     val ownerUserId = javaUUID("owner_user_id").references(UsersTable.id).nullable()
@@ -24,6 +25,7 @@ object TourismServicesTable : Table("tourism_services") {
     override val primaryKey = PrimaryKey(id)
 }
 
+// Provides shared bookings table behavior without requiring callers to create an instance.
 object BookingsTable : Table("bookings") {
     val id = javaUUID("id")
     val userId = javaUUID("user_id").references(UsersTable.id)
@@ -40,6 +42,7 @@ object BookingsTable : Table("bookings") {
     override val primaryKey = PrimaryKey(id)
 }
 
+// Provides shared notifications table behavior without requiring callers to create an instance.
 object NotificationsTable : Table("notifications") {
     val id = javaUUID("id")
     val userId = javaUUID("user_id").references(UsersTable.id)

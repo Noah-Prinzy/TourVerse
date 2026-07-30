@@ -6,6 +6,7 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 
+// Registers the route endpoints and delegates each request to its service layer.
 fun Route.documentationRoutes() {
     get("/api/openapi.yaml") {
         val specification = checkNotNull(

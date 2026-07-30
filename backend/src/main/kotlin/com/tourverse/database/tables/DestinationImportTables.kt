@@ -4,6 +4,7 @@ import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.javatime.timestampWithTimeZone
 
+// Provides shared destination import batches table behavior without requiring callers to create an instance.
 object DestinationImportBatchesTable : Table("destination_import_batches") {
     val id = javaUUID("id")
     val provider = varchar("provider", 40)
@@ -20,6 +21,7 @@ object DestinationImportBatchesTable : Table("destination_import_batches") {
     override val primaryKey = PrimaryKey(id)
 }
 
+// Provides shared destination import candidates table behavior without requiring callers to create an instance.
 object DestinationImportCandidatesTable : Table("destination_import_candidates") {
     val id = javaUUID("id")
     val batchId = javaUUID("batch_id").references(DestinationImportBatchesTable.id)
@@ -53,6 +55,7 @@ object DestinationImportCandidatesTable : Table("destination_import_candidates")
     override val primaryKey = PrimaryKey(id)
 }
 
+// Provides shared destination source references table behavior without requiring callers to create an instance.
 object DestinationSourceReferencesTable : Table("destination_source_references") {
     val id = javaUUID("id")
     val destinationId = javaUUID("destination_id").references(DestinationsTable.id)
@@ -71,6 +74,7 @@ object DestinationSourceReferencesTable : Table("destination_source_references")
     override val primaryKey = PrimaryKey(id)
 }
 
+// Provides shared destination field provenance table behavior without requiring callers to create an instance.
 object DestinationFieldProvenanceTable : Table("destination_field_provenance") {
     val id = javaUUID("id")
     val destinationId = javaUUID("destination_id").references(DestinationsTable.id)

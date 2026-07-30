@@ -4,6 +4,7 @@ import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.javatime.timestampWithTimeZone
 
+// Provides shared users table behavior without requiring callers to create an instance.
 object UsersTable : Table("users") {
     val id = javaUUID("id")
     val firstName = varchar("first_name", 80)
@@ -21,6 +22,7 @@ object UsersTable : Table("users") {
     override val primaryKey = PrimaryKey(id)
 }
 
+// Provides shared refresh tokens table behavior without requiring callers to create an instance.
 object RefreshTokensTable : Table("refresh_tokens") {
     val id = javaUUID("id")
     val userId = javaUUID("user_id").references(UsersTable.id)

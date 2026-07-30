@@ -37,6 +37,7 @@ import java.util.UUID
 
 class PostgresDestinationRepository : DestinationRepository {
 
+    // Retrieves all from persistent or request state.
     override suspend fun getAll(query: DestinationQuery): PagedDestinationResponse =
         suspendTransaction {
             val filteredQuery = buildFilteredQuery(query)
@@ -70,6 +71,7 @@ class PostgresDestinationRepository : DestinationRepository {
             )
         }
 
+    // Retrieves countries from persistent or request state.
     override suspend fun getCountries(): List<DestinationCountry> = suspendTransaction {
         val query = DestinationsTable.selectAll()
         query.andWhere {
@@ -102,6 +104,7 @@ class PostgresDestinationRepository : DestinationRepository {
             .sortedBy { it.name.lowercase() }
     }
 
+    // Retrieves by id from persistent or request state.
     override suspend fun getById(id: UUID): Destination? =
         suspendTransaction {
             DestinationsTable
@@ -111,6 +114,7 @@ class PostgresDestinationRepository : DestinationRepository {
                 ?.let(::toDestination)
         }
 
+    // Creates create and returns the resulting domain value.
     override suspend fun create(request: CreateDestinationRequest): Destination =
         suspendTransaction {
             val destinationId = UUID.randomUUID()
@@ -143,6 +147,7 @@ class PostgresDestinationRepository : DestinationRepository {
                 .let(::toDestination)
         }
 
+    // Updates update within the current transaction or request.
     override suspend fun update(id: UUID, request: UpdateDestinationRequest): Destination? =
         suspendTransaction {
             val normalizedCountry = CountryCodeService.resolve(request.country, request.countryCode)
@@ -176,11 +181,13 @@ class PostgresDestinationRepository : DestinationRepository {
             }
         }
 
+    // Removes or invalidates delete for the requested resource.
     override suspend fun delete(id: UUID): Boolean =
         suspendTransaction {
             DestinationsTable.deleteWhere { DestinationsTable.id eq id } > 0
         }
 
+    // Converts input into the build filtered query representation used by the next application layer.
     private fun buildFilteredQuery(query: DestinationQuery): Query {
         val databaseQuery = DestinationsTable.selectAll()
         databaseQuery.andWhere {
@@ -222,6 +229,7 @@ class PostgresDestinationRepository : DestinationRepository {
         return databaseQuery
     }
 
+    // Converts input into the to destination representation used by the next application layer.
     private fun toDestination(row: ResultRow): Destination {
         val references = DestinationSourceReferencesTable.selectAll().where {
             (DestinationSourceReferencesTable.destinationId eq row[DestinationsTable.id]) and

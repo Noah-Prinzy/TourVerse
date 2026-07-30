@@ -10,6 +10,7 @@ import java.net.URI
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
+// Configures and initializes the shared database connection pool for the backend.
 object DatabaseFactory {
 
     private const val DATABASE_URL = "TOURVERSE_DATABASE_URL"
@@ -25,6 +26,7 @@ object DatabaseFactory {
     private var dataSource: HikariDataSource? = null
 
     @Synchronized
+    // Encapsulates the init operation behind a reusable function.
     fun init() {
         if (dataSource != null) {
             logger.info("TourVerse database is already initialized.")
@@ -59,6 +61,7 @@ object DatabaseFactory {
         }
     }
 
+    // Retrieves database config from persistent or request state.
     private fun loadDatabaseConfig(): DatabaseConfig {
         val jdbcUrl = AppEnvironment.get(DATABASE_URL)
         val username = AppEnvironment.get(DATABASE_USER)
@@ -90,6 +93,7 @@ object DatabaseFactory {
         )
     }
 
+    // Converts input into the parse marketplace database url representation used by the next application layer.
     private fun parseMarketplaceDatabaseUrl(value: String): DatabaseConfig {
         val uri = runCatching { URI(value) }.getOrElse {
             throw IllegalStateException("DATABASE_URL is not a valid PostgreSQL URL.", it)
@@ -118,9 +122,11 @@ object DatabaseFactory {
         )
     }
 
+    // Converts input into the decode user info representation used by the next application layer.
     private fun decodeUserInfo(value: String): String =
         URLDecoder.decode(value.replace("+", "%2B"), StandardCharsets.UTF_8)
 
+    // Creates data source and returns the resulting domain value.
     private fun createDataSource(databaseConfig: DatabaseConfig): HikariDataSource {
         val hikariConfig = HikariConfig().apply {
             poolName = "TourVersePool"
@@ -143,6 +149,7 @@ object DatabaseFactory {
         }
     }
 
+    // Encapsulates the run migrations operation behind a reusable function.
     private fun runMigrations(databaseConfig: DatabaseConfig) {
         logger.info("Running Flyway database migrations.")
 

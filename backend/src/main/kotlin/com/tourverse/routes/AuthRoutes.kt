@@ -9,6 +9,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.*
 
+// Exposes authentication and account-management endpoints for the web app.
 fun Route.authRoutes(service: AuthService) {
     route("/api/auth") {
         post("/register") {

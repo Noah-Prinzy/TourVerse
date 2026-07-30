@@ -10,6 +10,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.*
 
+// Registers the route endpoints and delegates each request to its service layer.
 fun Route.userProfileRoutes(service: UserProfileService) {
     route("/api/users/me/profile") {
         get { call.respond(service.get(call.authenticatedUser().id)) }

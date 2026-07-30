@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 private data class RateWindow(val startsAt: Long, val count: AtomicInteger)
 
+// Protects the API with rate limiting and production safety checks.
 fun Application.configureSecurity() {
     validateProductionConfiguration()
 
@@ -44,6 +45,7 @@ fun Application.configureSecurity() {
     }
 }
 
+// Validates production configuration before protected work continues.
 private fun validateProductionConfiguration() {
     if (!AppEnvironment.isProduction) return
 

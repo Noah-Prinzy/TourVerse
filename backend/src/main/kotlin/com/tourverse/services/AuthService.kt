@@ -21,9 +21,11 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.UUID
 
+// Coordinates authentication workflows such as registration, login, refresh, and profile updates.
 class AuthService {
     private val refreshLifetimeDays = 30L
 
+    // Creates register after applying validation and business rules.
     suspend fun register(request: RegisterRequest): AuthResponse = suspendTransaction {
         AuthValidator.validateRegistration(request)
         val normalizedEmail = request.email.trim().lowercase()
@@ -45,6 +47,7 @@ class AuthService {
         issueTokens(loadUser(userId))
     }
 
+    // Coordinates the login business workflow for callers.
     suspend fun login(request: LoginRequest): AuthResponse = suspendTransaction {
         val normalizedEmail = request.email.trim().lowercase()
         val row = UsersTable.selectAll()
@@ -57,6 +60,7 @@ class AuthService {
         issueTokens(row.toUser())
     }
 
+    // Updates refresh while keeping related state consistent.
     suspend fun refresh(request: RefreshTokenRequest): AuthResponse = suspendTransaction {
         val now = OffsetDateTime.now(ZoneOffset.UTC)
         val tokenHash = TokenService.hashRefreshToken(request.refreshToken)
@@ -75,6 +79,7 @@ class AuthService {
         issueTokens(loadUser(tokenRow[RefreshTokensTable.userId]))
     }
 
+    // Removes or invalidates logout after enforcing ownership and authorization rules.
     suspend fun logout(request: LogoutRequest) = suspendTransaction {
         val tokenHash = TokenService.hashRefreshToken(request.refreshToken)
         RefreshTokensTable.update({ RefreshTokensTable.tokenHash eq tokenHash }) {
@@ -83,8 +88,10 @@ class AuthService {
         Unit
     }
 
+    // Retrieves current user from the relevant repository or external provider.
     suspend fun getCurrentUser(userId: UUID): UserResponse = suspendTransaction { loadUser(userId) }
 
+    // Updates profile while keeping related state consistent.
     suspend fun updateProfile(userId: UUID, request: UpdateProfileRequest): UserResponse = suspendTransaction {
         AuthValidator.validateProfile(request)
         val updatedRows = UsersTable.update({ UsersTable.id eq userId }) { statement ->
@@ -98,6 +105,7 @@ class AuthService {
         loadUser(userId)
     }
 
+    // Updates password while keeping related state consistent.
     suspend fun changePassword(userId: UUID, request: ChangePasswordRequest) = suspendTransaction {
         val user = UsersTable.selectAll()
             .where { UsersTable.id eq userId }
@@ -120,11 +128,13 @@ class AuthService {
         Unit
     }
 
+    // Removes or invalidates all sessions after enforcing ownership and authorization rules.
     suspend fun revokeAllSessions(userId: UUID) = suspendTransaction {
         RefreshTokensTable.deleteWhere { RefreshTokensTable.userId eq userId }
         Unit
     }
 
+    // Creates tokens after applying validation and business rules.
     private fun issueTokens(user: UserResponse): AuthResponse {
         val access = TokenService.createAccessToken(user.id, user.role)
         val refreshToken = TokenService.createRefreshToken()
@@ -140,10 +150,12 @@ class AuthService {
         return AuthResponse(access.token, refreshToken, expiresInSeconds = access.expiresInSeconds, user = user)
     }
 
+    // Retrieves user from the relevant repository or external provider.
     private fun loadUser(userId: UUID): UserResponse =
         UsersTable.selectAll().where { UsersTable.id eq userId }.singleOrNull()?.toUser()
             ?: throw NotFoundException("User not found")
 
+    // Coordinates the result row business workflow for callers.
     private fun ResultRow.toUser() = UserResponse(
         id = this[UsersTable.id],
         firstName = this[UsersTable.firstName],

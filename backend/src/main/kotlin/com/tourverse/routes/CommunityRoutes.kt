@@ -11,6 +11,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.*
 import java.util.UUID
 
+// Registers the route endpoints and delegates each request to its service layer.
 fun Route.communityRoutes(service: CommunityService) {
     route("/api/destinations/{destinationId}/reviews") {
         get { call.respond(service.destinationReviews(call.uuid("destinationId"))) }
@@ -38,6 +39,7 @@ fun Route.communityRoutes(service: CommunityService) {
     }
 }
 
+// Encapsulates the io operation behind a reusable function.
 private fun io.ktor.server.application.ApplicationCall.uuid(name: String): UUID =
     parameters[name]?.let { runCatching { UUID.fromString(it) }.getOrNull() }
         ?: throw ValidationException("$name must be a valid UUID")

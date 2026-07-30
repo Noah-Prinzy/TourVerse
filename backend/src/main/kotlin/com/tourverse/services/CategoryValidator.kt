@@ -6,12 +6,14 @@ import com.tourverse.utils.ValidationException
 import java.net.URI
 
 object CategoryValidator {
+    // Validates validate and stops the workflow when input is invalid.
     fun validate(request: CreateCategoryRequest) {
         validateName(request.name)
         validateDescription(request.description)
         validateIcon(request.iconUrl)
     }
 
+    // Validates validate and stops the workflow when input is invalid.
     fun validate(request: UpdateCategoryRequest) {
         if (request.name == null && request.description == null && request.iconUrl == null && request.active == null) {
             throw ValidationException("At least one category field must be supplied")
@@ -21,17 +23,21 @@ object CategoryValidator {
         validateIcon(request.iconUrl)
     }
 
+    // Coordinates the slug business workflow for callers.
     fun slug(name: String): String = name.trim().lowercase()
         .replace("&", " and ")
         .replace(Regex("[^a-z0-9]+"), "-").trim('-')
 
+    // Validates name and stops the workflow when input is invalid.
     private fun validateName(value: String) {
         if (value.trim().length !in 2..80) throw ValidationException("Category name must contain 2 to 80 characters")
         if (slug(value).isBlank()) throw ValidationException("Category name must contain letters or numbers")
     }
+    // Validates description and stops the workflow when input is invalid.
     private fun validateDescription(value: String?) {
         if (value != null && value.trim().length > 500) throw ValidationException("Category description must not exceed 500 characters")
     }
+    // Validates icon and stops the workflow when input is invalid.
     private fun validateIcon(value: String?) {
         val text = value?.trim()?.takeIf(String::isNotEmpty) ?: return
         val uri = runCatching { URI(text) }.getOrNull()

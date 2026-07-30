@@ -7,6 +7,7 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.cors.routing.CORS
 
+// Configures cross-origin access so the web client can call the backend safely.
 fun Application.configureHTTP() {
     install(CORS) {
         val configuredOrigins = AppEnvironment.get("TOURVERSE_ALLOWED_ORIGINS")

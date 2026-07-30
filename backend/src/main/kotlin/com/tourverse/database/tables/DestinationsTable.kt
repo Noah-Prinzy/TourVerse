@@ -4,6 +4,7 @@ import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.javatime.timestampWithTimeZone
 
+// Provides shared destinations table behavior without requiring callers to create an instance.
 object DestinationsTable : Table("destinations") {
 
     val id = javaUUID("id").databaseGenerated()

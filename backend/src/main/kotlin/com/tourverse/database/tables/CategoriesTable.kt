@@ -4,6 +4,7 @@ import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.java.javaUUID
 import org.jetbrains.exposed.v1.javatime.timestampWithTimeZone
 
+// Provides shared categories table behavior without requiring callers to create an instance.
 object CategoriesTable : Table("categories") {
     val id = javaUUID("id")
     val name = varchar("name", 80)

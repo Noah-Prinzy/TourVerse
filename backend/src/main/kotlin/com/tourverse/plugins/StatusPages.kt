@@ -10,6 +10,7 @@ import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 
+// Centralizes API error handling so every domain exception returns a consistent response.
 fun Application.configureStatusPages() {
     install(StatusPages) {
         exception<ValidationException> { call, cause ->

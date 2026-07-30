@@ -11,6 +11,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.*
 import java.util.UUID
 
+// Registers the route endpoints and connects requests to the relevant service operations.
 fun Route.platformRoutes(service: PlatformService) {
     route("/api/services") {
         get {
@@ -93,8 +94,10 @@ fun Route.platformRoutes(service: PlatformService) {
     }
 }
 
+// Encapsulates the io workflow so callers use one consistent implementation.
 private fun io.ktor.server.application.ApplicationCall.platformUuid(name: String): UUID =
     parameters[name]?.let(::parseUuid) ?: throw ValidationException("$name must be a valid UUID")
 
+// Converts the input into the parse uuid representation required by the next layer.
 private fun parseUuid(value: String): UUID =
     runCatching { UUID.fromString(value) }.getOrElse { throw ValidationException("Value must be a valid UUID") }

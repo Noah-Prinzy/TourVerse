@@ -20,6 +20,7 @@ import java.util.UUID
 
 interface GooglePlacesSearchClient {
     val configured: Boolean
+    // Retrieves search from the relevant repository or external provider.
     suspend fun search(
         name: String,
         latitude: Double,
@@ -40,6 +41,7 @@ class GooglePlacesHttpClient(
 ) : GooglePlacesSearchClient {
     override val configured: Boolean = !apiKey.isNullOrBlank()
 
+    // Retrieves search from the relevant repository or external provider.
     override suspend fun search(
         name: String,
         latitude: Double,
@@ -96,6 +98,7 @@ class GooglePlaceLinkService(
     private val catalogue: DestinationImportRepository,
     private val google: GooglePlacesSearchClient
 ) {
+    // Retrieves search from the relevant repository or external provider.
     suspend fun search(
         destinationId: UUID,
         request: GooglePlaceSearchRequest
@@ -114,16 +117,19 @@ class GooglePlaceLinkService(
         return google.search(text, latitude, longitude, request.limit)
     }
 
+    // Updates link while keeping related state consistent.
     suspend fun link(destinationId: UUID, adminId: UUID, request: LinkGooglePlaceRequest) =
         catalogue.linkGooglePlace(destinationId, adminId, validate(request))
             ?: throw NotFoundException("Destination not found.")
 
+    // Removes or invalidates remove after enforcing ownership and authorization rules.
     suspend fun remove(destinationId: UUID) {
         if (!catalogue.removeGooglePlace(destinationId)) {
             throw NotFoundException("Active Google Place link not found.")
         }
     }
 
+    // Validates validate and stops the workflow when input is invalid.
     private fun validate(request: LinkGooglePlaceRequest): LinkGooglePlaceRequest {
         val placeId = request.placeId.trim()
         if (!Regex("[A-Za-z0-9_-]{10,255}").matches(placeId)) {

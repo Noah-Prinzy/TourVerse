@@ -14,6 +14,7 @@ import java.time.ZoneOffset
 import java.util.UUID
 
 class PostgresDestinationImportRepository : DestinationImportRepository {
+    // Creates batch and returns the resulting domain value.
     override suspend fun createBatch(adminId: UUID, query: DestinationImportQuery) = suspendTransaction {
         val id = UUID.randomUUID()
         val now = now()
@@ -33,6 +34,7 @@ class PostgresDestinationImportRepository : DestinationImportRepository {
         batch(id)!!
     }
 
+    // Creates candidates and returns the resulting domain value.
     override suspend fun saveCandidates(batchId: UUID, candidates: List<DestinationCandidate>) = suspendTransaction {
         candidates.mapNotNull { candidate ->
             val exists = DestinationImportCandidatesTable.selectAll().where {
@@ -74,6 +76,7 @@ class PostgresDestinationImportRepository : DestinationImportRepository {
         }
     }
 
+    // Encapsulates the complete batch operation behind a reusable function.
     override suspend fun completeBatch(batchId: UUID, retrievedCount: Int, error: String?) = suspendTransaction {
         DestinationImportBatchesTable.update({ DestinationImportBatchesTable.id eq batchId }) { row ->
             row[DestinationImportBatchesTable.retrievedCount] = retrievedCount
@@ -85,14 +88,17 @@ class PostgresDestinationImportRepository : DestinationImportRepository {
         batch(batchId)!!
     }
 
+    // Retrieves batches from persistent or request state.
     override suspend fun listBatches() = suspendTransaction {
         DestinationImportBatchesTable.selectAll()
             .orderBy(DestinationImportBatchesTable.createdAt to SortOrder.DESC)
             .map { it.toBatch() }
     }
 
+    // Retrieves batch from persistent or request state.
     override suspend fun getBatch(id: UUID) = suspendTransaction { batch(id) }
 
+    // Retrieves candidates from persistent or request state.
     override suspend fun listCandidates(batchId: UUID?, status: DestinationImportStatus?) = suspendTransaction {
         val query = DestinationImportCandidatesTable.selectAll()
         batchId?.let { query.andWhere { DestinationImportCandidatesTable.batchId eq it } }
@@ -100,8 +106,10 @@ class PostgresDestinationImportRepository : DestinationImportRepository {
         query.orderBy(DestinationImportCandidatesTable.createdAt to SortOrder.DESC).map { it.toCandidate() }
     }
 
+    // Retrieves candidate from persistent or request state.
     override suspend fun getCandidate(id: UUID) = suspendTransaction { candidate(id) }
 
+    // Updates candidate within the current transaction or request.
     override suspend fun updateCandidate(id: UUID, request: UpdateDestinationCandidateRequest) = suspendTransaction {
         val current = candidate(id) ?: return@suspendTransaction null
         if (current.reviewStatus == DestinationImportStatus.APPROVED) {
@@ -127,6 +135,7 @@ class PostgresDestinationImportRepository : DestinationImportRepository {
         candidate(id)
     }
 
+    // Updates candidate within the current transaction or request.
     override suspend fun rejectCandidate(id: UUID, adminId: UUID, reason: String) = suspendTransaction {
         val current = candidate(id) ?: return@suspendTransaction null
         if (current.reviewStatus == DestinationImportStatus.APPROVED) {
@@ -141,6 +150,7 @@ class PostgresDestinationImportRepository : DestinationImportRepository {
         candidate(id)
     }
 
+    // Updates candidate within the current transaction or request.
     override suspend fun linkCandidate(id: UUID, adminId: UUID, destinationId: UUID) = suspendTransaction {
         val current = candidate(id) ?: return@suspendTransaction null
         if (!DestinationsTable.selectAll().where { DestinationsTable.id eq destinationId }.any()) return@suspendTransaction null
@@ -155,6 +165,7 @@ class PostgresDestinationImportRepository : DestinationImportRepository {
         candidate(id)
     }
 
+    // Updates candidate within the current transaction or request.
     override suspend fun approveCandidate(id: UUID, adminId: UUID) = suspendTransaction {
         val current = candidate(id) ?: return@suspendTransaction null
         if (current.reviewStatus == DestinationImportStatus.APPROVED) {
@@ -212,6 +223,7 @@ class PostgresDestinationImportRepository : DestinationImportRepository {
         candidate(id)
     }
 
+    // Retrieves stale destinations from persistent or request state.
     override suspend fun listStaleDestinations() = suspendTransaction {
         val current = now()
         DestinationsTable.selectAll().where {
@@ -220,6 +232,7 @@ class PostgresDestinationImportRepository : DestinationImportRepository {
         }.map { it.toDestination() }
     }
 
+    // Updates refresh pending within the current transaction or request.
     override suspend fun markRefreshPending(destinationId: UUID) = suspendTransaction {
         val changed = DestinationsTable.update({ DestinationsTable.id eq destinationId }) {
             it[cacheStatus] = CacheStatus.REFRESH_PENDING.name
@@ -229,6 +242,7 @@ class PostgresDestinationImportRepository : DestinationImportRepository {
             .where { DestinationsTable.id eq destinationId }.single().toDestination()
     }
 
+    // Retrieves sources from persistent or request state.
     override suspend fun listSources(destinationId: UUID) = suspendTransaction {
         DestinationSourceReferencesTable.selectAll()
             .where { DestinationSourceReferencesTable.destinationId eq destinationId }
@@ -236,6 +250,7 @@ class PostgresDestinationImportRepository : DestinationImportRepository {
             .map { it.toSourceReference() }
     }
 
+    // Updates google place within the current transaction or request.
     override suspend fun linkGooglePlace(
         destinationId: UUID,
         adminId: UUID,
@@ -287,6 +302,7 @@ class PostgresDestinationImportRepository : DestinationImportRepository {
             .single().toSourceReference()
     }
 
+    // Removes or invalidates google place for the requested resource.
     override suspend fun removeGooglePlace(destinationId: UUID) = suspendTransaction {
         DestinationSourceReferencesTable.update({
             (DestinationSourceReferencesTable.destinationId eq destinationId) and
@@ -295,6 +311,7 @@ class PostgresDestinationImportRepository : DestinationImportRepository {
         }) { it[active] = false } > 0
     }
 
+    // Updates source within the current transaction or request.
     private fun linkSource(candidate: DestinationCandidate, destinationId: UUID) {
         val exists = DestinationSourceReferencesTable.selectAll().where {
             (DestinationSourceReferencesTable.sourceProvider eq candidate.sourceProvider) and
@@ -318,13 +335,18 @@ class PostgresDestinationImportRepository : DestinationImportRepository {
         }
     }
 
+    // Encapsulates the batch operation behind a reusable function.
     private fun batch(id: UUID) = DestinationImportBatchesTable.selectAll()
         .where { DestinationImportBatchesTable.id eq id }.singleOrNull()?.toBatch()
+    // Checks whether candidate is true in the current context.
     private fun candidate(id: UUID) = DestinationImportCandidatesTable.selectAll()
         .where { DestinationImportCandidatesTable.id eq id }.singleOrNull()?.toCandidate()
+    // Encapsulates the now operation behind a reusable function.
     private fun now() = OffsetDateTime.now(ZoneOffset.UTC)
+    // Encapsulates the string operation behind a reusable function.
     private fun String.clean() = trim()
 
+    // Encapsulates the result row operation behind a reusable function.
     private fun ResultRow.toBatch() = DestinationImportBatch(
         this[DestinationImportBatchesTable.id], this[DestinationImportBatchesTable.provider],
         this[DestinationImportBatchesTable.requestedBy], this[DestinationImportBatchesTable.countryCode],
@@ -335,6 +357,7 @@ class PostgresDestinationImportRepository : DestinationImportRepository {
         this[DestinationImportBatchesTable.createdAt].toInstant(), this[DestinationImportBatchesTable.updatedAt].toInstant()
     )
 
+    // Encapsulates the result row operation behind a reusable function.
     private fun ResultRow.toCandidate() = DestinationCandidate(
         id = this[DestinationImportCandidatesTable.id],
         batchId = this[DestinationImportCandidatesTable.batchId],
@@ -368,6 +391,7 @@ class PostgresDestinationImportRepository : DestinationImportRepository {
         updatedAt = this[DestinationImportCandidatesTable.updatedAt].toInstant()
     )
 
+    // Encapsulates the result row operation behind a reusable function.
     private fun ResultRow.toSourceReference() = DestinationSourceReference(
         id = this[DestinationSourceReferencesTable.id],
         destinationId = this[DestinationSourceReferencesTable.destinationId],
@@ -384,6 +408,7 @@ class PostgresDestinationImportRepository : DestinationImportRepository {
         active = this[DestinationSourceReferencesTable.active]
     )
 
+    // Encapsulates the result row operation behind a reusable function.
     private fun ResultRow.toDestination() = Destination(
         id = this[DestinationsTable.id], name = this[DestinationsTable.name],
         country = this[DestinationsTable.country], city = this[DestinationsTable.city],

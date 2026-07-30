@@ -8,6 +8,7 @@ import java.util.UUID
 
 data class AuthenticatedUser(val id: UUID, val role: String)
 
+// Encapsulates the application call operation behind a reusable function.
 fun ApplicationCall.authenticatedUser(vararg allowedRoles: String): AuthenticatedUser {
     val authorization = request.headers[HttpHeaders.Authorization]
         ?: throw UnauthorizedException()

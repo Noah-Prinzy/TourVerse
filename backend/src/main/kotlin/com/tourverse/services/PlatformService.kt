@@ -17,6 +17,7 @@ import java.time.ZoneOffset
 import java.util.UUID
 
 class PlatformService {
+    // Coordinates the services business workflow for callers.
     suspend fun services(type: String?, destinationId: UUID?, includeInactive: Boolean = false): List<TourismServiceResponse> = suspendTransaction {
         TourismServicesTable.selectAll().filter { row ->
             (includeInactive || row[TourismServicesTable.active]) &&
@@ -25,6 +26,7 @@ class PlatformService {
         }.sortedBy { it[TourismServicesTable.name].lowercase() }.map { it.toService() }
     }
 
+    // Coordinates the service business workflow for callers.
     suspend fun service(id: UUID, includeInactive: Boolean = false): TourismServiceResponse = suspendTransaction {
         val row = TourismServicesTable.selectAll().where { TourismServicesTable.id eq id }.singleOrNull()
             ?: throw NotFoundException("Tourism service not found")
@@ -32,6 +34,7 @@ class PlatformService {
         row.toService()
     }
 
+    // Creates service after applying validation and business rules.
     suspend fun createService(ownerId: UUID, request: CreateTourismServiceRequest): TourismServiceResponse = suspendTransaction {
         validateService(request.name, request.serviceType, request.email, request.websiteUrl, request.priceFrom, request.currency)
         request.destinationId?.let { ensureDestination(it) }
@@ -46,6 +49,7 @@ class PlatformService {
         TourismServicesTable.selectAll().where { TourismServicesTable.id eq id }.single().toService()
     }
 
+    // Updates service while keeping related state consistent.
     suspend fun updateService(userId: UUID, role: String, id: UUID, request: UpdateTourismServiceRequest): TourismServiceResponse = suspendTransaction {
         val old = serviceRow(id); ensureOwnerOrAdmin(userId, role, old[TourismServicesTable.ownerUserId])
         val name = request.name ?: old[TourismServicesTable.name]
@@ -67,6 +71,7 @@ class PlatformService {
         serviceRow(id).toService()
     }
 
+    // Removes or invalidates service after enforcing ownership and authorization rules.
     suspend fun deleteService(userId: UUID, role: String, id: UUID) = suspendTransaction {
         val row = serviceRow(id); ensureOwnerOrAdmin(userId, role, row[TourismServicesTable.ownerUserId])
         if (BookingsTable.selectAll().where { BookingsTable.serviceId eq id }.any()) {
@@ -75,11 +80,13 @@ class PlatformService {
         Unit
     }
 
+    // Coordinates the bookings business workflow for callers.
     suspend fun bookings(userId: UUID, role: String): List<BookingResponse> = suspendTransaction {
         val rows = if (role == "ADMIN") BookingsTable.selectAll() else BookingsTable.selectAll().where { BookingsTable.userId eq userId }
         rows.orderBy(BookingsTable.createdAt to SortOrder.DESC).map { booking(it) }
     }
 
+    // Creates booking after applying validation and business rules.
     suspend fun createBooking(userId: UUID, request: CreateBookingRequest): BookingResponse = suspendTransaction {
         if (request.numberOfPeople !in 1..100) throw ValidationException("Number of people must be between 1 and 100")
         if (request.bookingDate.isBefore(java.time.LocalDate.now())) throw ValidationException("Booking date cannot be in the past")
@@ -98,6 +105,7 @@ class PlatformService {
         booking(BookingsTable.selectAll().where { BookingsTable.id eq id }.single())
     }
 
+    // Removes or invalidates booking after enforcing ownership and authorization rules.
     suspend fun cancelBooking(userId: UUID, id: UUID): BookingResponse = suspendTransaction {
         val row = bookingRow(id)
         if (row[BookingsTable.userId] != userId) throw ForbiddenException("You can only cancel your own booking")
@@ -107,6 +115,7 @@ class PlatformService {
         bookingRow(id).let { booking(it) }
     }
 
+    // Updates booking status while keeping related state consistent.
     suspend fun updateBookingStatus(adminId: UUID, id: UUID, request: UpdateBookingStatusRequest): BookingResponse = suspendTransaction {
         val status = request.status.trim().uppercase()
         if (status !in setOf("PENDING", "CONFIRMED", "CANCELLED", "COMPLETED")) throw ValidationException("Invalid booking status")
@@ -116,20 +125,24 @@ class PlatformService {
         bookingRow(id).let { booking(it) }
     }
 
+    // Coordinates the notifications business workflow for callers.
     suspend fun notifications(userId: UUID): List<NotificationResponse> = suspendTransaction {
         NotificationsTable.selectAll().where { NotificationsTable.userId eq userId }
             .orderBy(NotificationsTable.createdAt to SortOrder.DESC).map { it.toNotification() }
     }
+    // Updates notification read while keeping related state consistent.
     suspend fun markNotificationRead(userId: UUID, id: UUID): NotificationResponse = suspendTransaction {
         val row = NotificationsTable.selectAll().where { (NotificationsTable.id eq id) and (NotificationsTable.userId eq userId) }.singleOrNull()
             ?: throw NotFoundException("Notification not found")
         NotificationsTable.update({ NotificationsTable.id eq id }) { it[isRead] = true }
         NotificationsTable.selectAll().where { NotificationsTable.id eq id }.single().toNotification()
     }
+    // Updates all notifications read while keeping related state consistent.
     suspend fun markAllNotificationsRead(userId: UUID) = suspendTransaction {
         NotificationsTable.update({ NotificationsTable.userId eq userId }) { it[isRead] = true }; Unit
     }
 
+    // Coordinates the admin statistics business workflow for callers.
     suspend fun adminStatistics(): AdminStatisticsResponse = suspendTransaction {
         AdminStatisticsResponse(
             UsersTable.selectAll().count(), DestinationsTable.selectAll().count(), ReviewsTable.selectAll().count(),
@@ -137,11 +150,13 @@ class PlatformService {
             BookingsTable.selectAll().where { BookingsTable.status eq "PENDING" }.count()
         )
     }
+    // Coordinates the admin users business workflow for callers.
     suspend fun adminUsers(): List<AdminUserResponse> = suspendTransaction {
         UsersTable.selectAll().orderBy(UsersTable.createdAt to SortOrder.DESC).map {
             AdminUserResponse(it[UsersTable.id], it[UsersTable.firstName], it[UsersTable.lastName], it[UsersTable.email], it[UsersTable.role], it[UsersTable.createdAt].toInstant())
         }
     }
+    // Updates user role while keeping related state consistent.
     suspend fun updateUserRole(id: UUID, request: AdminRoleUpdateRequest): AdminUserResponse = suspendTransaction {
         val role = request.role.trim().uppercase()
         if (role !in setOf("USER", "ADMIN", "TOUR_GUIDE", "BUSINESS_OWNER")) throw ValidationException("Invalid user role")
@@ -152,6 +167,7 @@ class PlatformService {
         }
     }
 
+    // Validates service and stops the workflow when input is invalid.
     private fun validateService(name: String, type: String, email: String?, website: String?, price: Double?, currency: String) {
         if (name.isBlank() || name.trim().length > 160) throw ValidationException("Service name is required and must not exceed 160 characters")
         if (type.trim().uppercase() !in setOf("HOTEL", "RESTAURANT", "TOUR", "TRANSPORT", "GUIDE", "ACTIVITY")) throw ValidationException("Invalid service type")
@@ -160,14 +176,24 @@ class PlatformService {
         if (price != null && price < 0) throw ValidationException("Price cannot be negative")
         if (!currency.matches(Regex("^[A-Za-z]{3}$"))) throw ValidationException("Currency must be a three-letter code")
     }
+    // Validates destination and stops the workflow when input is invalid.
     private fun ensureDestination(id: UUID) { if (!DestinationsTable.selectAll().where { DestinationsTable.id eq id }.any()) throw NotFoundException("Destination not found") }
+    // Coordinates the service row business workflow for callers.
     private fun serviceRow(id: UUID) = TourismServicesTable.selectAll().where { TourismServicesTable.id eq id }.singleOrNull() ?: throw NotFoundException("Tourism service not found")
+    // Coordinates the booking row business workflow for callers.
     private fun bookingRow(id: UUID) = BookingsTable.selectAll().where { BookingsTable.id eq id }.singleOrNull() ?: throw NotFoundException("Booking not found")
+    // Validates owner or admin and stops the workflow when input is invalid.
     private fun ensureOwnerOrAdmin(userId: UUID, role: String, ownerId: UUID?) { if (role != "ADMIN" && ownerId != userId) throw ForbiddenException("You do not manage this tourism service") }
+    // Creates notification after applying validation and business rules.
     private fun createNotification(userId: UUID, title: String, message: String, type: String) { NotificationsTable.insert { r -> r[id] = UUID.randomUUID(); r[NotificationsTable.userId] = userId; r[NotificationsTable.title] = title; r[NotificationsTable.message] = message; r[NotificationsTable.type] = type; r[isRead] = false; r[createdAt] = now() } }
+    // Coordinates the booking business workflow for callers.
     private fun booking(row: ResultRow) = BookingResponse(row[BookingsTable.id], row[BookingsTable.userId], serviceRow(row[BookingsTable.serviceId]).toService(), row[BookingsTable.bookingDate], row[BookingsTable.numberOfPeople], row[BookingsTable.totalPrice]?.toDouble(), row[BookingsTable.currency], row[BookingsTable.status], row[BookingsTable.paymentStatus], row[BookingsTable.notes], row[BookingsTable.createdAt].toInstant(), row[BookingsTable.updatedAt].toInstant())
+    // Coordinates the result row business workflow for callers.
     private fun ResultRow.toService() = TourismServiceResponse(this[TourismServicesTable.id], this[TourismServicesTable.ownerUserId], this[TourismServicesTable.destinationId], this[TourismServicesTable.name], this[TourismServicesTable.serviceType], this[TourismServicesTable.description], this[TourismServicesTable.phone], this[TourismServicesTable.email], this[TourismServicesTable.websiteUrl], this[TourismServicesTable.address], this[TourismServicesTable.priceFrom]?.toDouble(), this[TourismServicesTable.currency], this[TourismServicesTable.active], this[TourismServicesTable.createdAt].toInstant(), this[TourismServicesTable.updatedAt].toInstant())
+    // Coordinates the result row business workflow for callers.
     private fun ResultRow.toNotification() = NotificationResponse(this[NotificationsTable.id], this[NotificationsTable.title], this[NotificationsTable.message], this[NotificationsTable.type], this[NotificationsTable.isRead], this[NotificationsTable.createdAt].toInstant())
+    // Converts the supplied values into the clean form required by the domain model.
     private fun clean(v: String?) = v?.trim()?.takeIf { it.isNotEmpty() }
+    // Coordinates the now business workflow for callers.
     private fun now() = OffsetDateTime.now(ZoneOffset.UTC)
 }

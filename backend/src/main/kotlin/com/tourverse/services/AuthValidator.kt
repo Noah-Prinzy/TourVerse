@@ -7,6 +7,7 @@ import com.tourverse.utils.ValidationException
 object AuthValidator {
     private val emailPattern = Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")
 
+    // Validates registration and stops the workflow when input is invalid.
     fun validateRegistration(request: RegisterRequest) {
         if (request.firstName.trim().length !in 2..80) {
             throw ValidationException("First name must contain between 2 and 80 characters.")
@@ -20,6 +21,7 @@ object AuthValidator {
         validatePassword(request.password)
     }
 
+    // Validates password and stops the workflow when input is invalid.
     fun validatePassword(password: String) {
         if (password.length !in 8..128 || !password.any(Char::isUpperCase) ||
             !password.any(Char::isLowerCase) || !password.any(Char::isDigit)
@@ -30,6 +32,7 @@ object AuthValidator {
         }
     }
 
+    // Validates profile and stops the workflow when input is invalid.
     fun validateProfile(request: UpdateProfileRequest) {
         request.firstName?.let {
             if (it.trim().length !in 2..80) throw ValidationException("First name must contain between 2 and 80 characters.")
